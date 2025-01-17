@@ -1,6 +1,6 @@
 from fastapi import FastAPI, BackgroundTasks, UploadFile, HTTPException
 from fastapi.responses import JSONResponse, FileResponse
-from . constants import TARGET_VIDEO, OUTPUT_DIR, UPLOAD_DIR
+from . constants import TARGET_VIDEO, OUTPUT_DIR, UPLOAD_DIR, REFERENCE_FACE_POSITION, REFERENCE_FRAME_NUMBER
 import subprocess
 import os
 import uuid
@@ -70,7 +70,10 @@ async def process_face_fusion(
             "--processors", "face_swapper",
             "--source-paths", source_path,
             "--target-path", TARGET_VIDEO,
-            "--output-path", output_path
+            "--output-path", output_path,
+            "--reference-face-position", str(REFERENCE_FACE_POSITION),
+            "--reference-frame-number", str(REFERENCE_FRAME_NUMBER)
+
         ]
 
         # Log the command
