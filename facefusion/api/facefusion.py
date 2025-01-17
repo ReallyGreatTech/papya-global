@@ -1,5 +1,5 @@
 from fastapi import FastAPI, BackgroundTasks, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from . constants import TARGET_VIDEO, OUTPUT_DIR, UPLOAD_DIR
 import subprocess
 import os
@@ -102,6 +102,9 @@ async def process_face_fusion(
                 start_time=start_time,
                 end_time=end_time
             )
+
+            # Delete the source file after processing
+            os.remove(source_path)
         else:
             error_msg = f"Process failed with return code {process.returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
             logger.error(f"Job {job_id} failed: {error_msg}")
@@ -188,4 +191,9 @@ async def get_job_status(job_id: str):
         logger.error(error_msg)
         raise HTTPException(status_code=404, detail=error_msg)
 
-    return job_statuses[job_id]
+    job_status = job_statuses[job_id]
+
+    if job_status.status == "completed":
+        return FileResponse(job_status.output_path, media_type="video/mp4", filename=f"output_{job_id}.mp4")
+    else:
+        return job_status
