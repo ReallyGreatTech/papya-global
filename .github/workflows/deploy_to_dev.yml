@@ -34,8 +34,8 @@ jobs:
       - name: Generate .env from secret manager
         run: |
           pip3 install boto3
-          cd ${APP_DIR}/deploy-package
-          python3 ${BUILD_ENV_FILE_SCRIPT} "${APP_DIR}/deploy-package/.env" "${SECRET_NAME}" eu-north-1
+          cd ${APP_DIR}
+          python3 ${BUILD_ENV_FILE_SCRIPT} "${APP_DIR}/.env" "${SECRET_NAME}" eu-north-1
 
         #Documentation for below action https://github.com/appleboy/scp-action
       - name: 1 SCP .env to server one
@@ -45,7 +45,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           port: ${{ secrets.EC2_SSH_PORT }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "${{ github.workspace }}/deploy-package/.env"
+          source: "${{ github.workspace }}/.env"
           target: papyaglobal
           strip_components: 3
 
