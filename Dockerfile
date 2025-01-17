@@ -18,4 +18,4 @@ WORKDIR /app/facefusion
 RUN pip install -r requirements.txt
 
 # Run installer
-RUN python facefusion/install.py --onnxruntime default --skip-conda
+RUN python install.py --onnxruntime default --skip-conda
