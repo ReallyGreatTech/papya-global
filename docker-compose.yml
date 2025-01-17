@@ -1,6 +1,7 @@
 services:
   facefusion-cpu:
     image: 330858616968.dkr.ecr.eu-north-1.amazonaws.com/papyaglobal-dev:latest
+    working_dir: /facefusion
     command: [ 'uvicorn', 'api.facefusion:app', '--reload', '--host', '0.0.0.0', '--port', '7860' ]
     volumes:
       - .assets:/facefusion/.assets
