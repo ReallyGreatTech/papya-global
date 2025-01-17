@@ -1,10 +1,10 @@
 services:
- facefusion-cpu:
-  image: 330858616968.dkr.ecr.eu-north-1.amazonaws.com/papyaglobal-dev:latest
-  command: [ 'python', 'facefusion.py', 'run' ]
-  volumes:
-  - .assets:/facefusion/.assets
-  - .caches:/facefusion/.caches
-  - .jobs:/facefusion/.jobs
-  ports:
-  - 7865:7860
+  facefusion-cpu:
+    image: 330858616968.dkr.ecr.eu-north-1.amazonaws.com/papyaglobal-dev:latest
+    command: [ 'uvicorn', 'api.facefusion:app', '--reload', '--host', '0.0.0.0', '--port', '7860' ]
+    volumes:
+      - .assets:/facefusion/.assets
+      - .caches:/facefusion/.caches
+      - .jobs:/facefusion/.jobs
+    ports:
+      - "7865:7860"
