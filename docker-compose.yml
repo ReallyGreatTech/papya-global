@@ -1,8 +1,6 @@
 services:
  facefusion-cpu:
-  build:
-   context: .
-   dockerfile: Dockerfile
+  image: 330858616968.dkr.ecr.eu-north-1.amazonaws.com/papyaglobal-dev:latest
   command: [ 'python', 'facefusion.py', 'run' ]
   volumes:
   - .assets:/facefusion/.assets
