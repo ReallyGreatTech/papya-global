@@ -1,0 +1,217 @@
+2025-01-20 12:57:48,679 - DEBUG - Calling on_part_begin with no data
+2025-01-20 12:57:48,680 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 12:57:48,681 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 12:57:48,681 - DEBUG - Calling on_header_end with no data
+2025-01-20 12:57:48,681 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 12:57:48,681 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 12:57:48,683 - DEBUG - Calling on_header_end with no data
+2025-01-20 12:57:48,683 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 12:57:48,683 - DEBUG - Calling on_part_data with data[147:16384]
+2025-01-20 12:57:48,684 - DEBUG - Calling on_part_data with data[0:131072]
+2025-01-20 12:57:48,688 - DEBUG - Calling on_part_data with data[0:14022]
+2025-01-20 12:57:48,688 - DEBUG - Calling on_part_end with no data
+2025-01-20 12:57:48,688 - DEBUG - Calling on_end with no data
+2025-01-20 12:57:48,690 - ERROR - Target video '../target_video/papaya-global.mp4' not found
+2025-01-20 12:57:48,691 - ERROR - Error creating job: 500: Target video '../target_video/papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video '../target_video/papaya-global.mp4' not found
+2025-01-20 13:01:00,717 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:01:00,717 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:01:00,718 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:01:00,718 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:01:00,718 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:01:00,719 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:01:00,719 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:01:00,719 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:01:00,720 - DEBUG - Calling on_part_data with data[147:65536]
+2025-01-20 13:01:00,721 - DEBUG - Calling on_part_data with data[0:95942]
+2025-01-20 13:01:00,721 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:01:00,721 - DEBUG - Calling on_end with no data
+2025-01-20 13:01:00,722 - ERROR - Target video '../target_video/papaya-global.mp4' not found
+2025-01-20 13:01:00,722 - ERROR - Error creating job: 500: Target video '../target_video/papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video '../target_video/papaya-global.mp4' not found
+2025-01-20 13:02:04,738 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:02:04,739 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:02:04,739 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:02:04,739 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:02:04,740 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:02:04,740 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:02:04,740 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:02:04,740 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:02:04,741 - DEBUG - Calling on_part_data with data[147:49152]
+2025-01-20 13:02:04,741 - DEBUG - Calling on_part_data with data[0:112326]
+2025-01-20 13:02:04,742 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:02:04,742 - DEBUG - Calling on_end with no data
+2025-01-20 13:02:04,743 - ERROR - Target video './papaya-global.mp4' not found
+2025-01-20 13:02:04,743 - ERROR - Error creating job: 500: Target video './papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video './papaya-global.mp4' not found
+2025-01-20 13:02:05,938 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:02:05,939 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:02:05,939 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:02:05,940 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:02:05,940 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:02:05,940 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:02:05,941 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:02:05,941 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:02:05,941 - DEBUG - Calling on_part_data with data[147:65536]
+2025-01-20 13:02:05,942 - DEBUG - Calling on_part_data with data[0:95942]
+2025-01-20 13:02:05,942 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:02:05,942 - DEBUG - Calling on_end with no data
+2025-01-20 13:02:05,943 - ERROR - Target video './papaya-global.mp4' not found
+2025-01-20 13:02:05,944 - ERROR - Error creating job: 500: Target video './papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video './papaya-global.mp4' not found
+2025-01-20 13:02:27,133 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:02:27,133 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:02:27,135 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:02:27,135 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:02:27,135 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:02:27,136 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:02:27,136 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:02:27,136 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:02:27,137 - DEBUG - Calling on_part_data with data[147:65536]
+2025-01-20 13:02:27,138 - DEBUG - Calling on_part_data with data[0:95942]
+2025-01-20 13:02:27,138 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:02:27,139 - DEBUG - Calling on_end with no data
+2025-01-20 13:02:27,139 - ERROR - Target video './papaya-global.mp4' not found
+2025-01-20 13:02:27,140 - ERROR - Error creating job: 500: Target video './papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video './papaya-global.mp4' not found
+2025-01-20 13:02:46,441 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:02:46,442 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:02:46,442 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:02:46,443 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:02:46,443 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:02:46,443 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:02:46,444 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:02:46,444 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:02:46,444 - DEBUG - Calling on_part_data with data[147:16384]
+2025-01-20 13:02:46,445 - DEBUG - Calling on_part_data with data[0:145094]
+2025-01-20 13:02:46,445 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:02:46,445 - DEBUG - Calling on_end with no data
+2025-01-20 13:02:46,446 - ERROR - Target video 'papaya-global.mp4' not found
+2025-01-20 13:02:46,447 - ERROR - Error creating job: 500: Target video 'papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video 'papaya-global.mp4' not found
+2025-01-20 13:03:51,732 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:03:51,733 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:03:51,733 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:03:51,734 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:03:51,734 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:03:51,734 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:03:51,735 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:03:51,735 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:03:51,736 - DEBUG - Calling on_part_data with data[147:16384]
+2025-01-20 13:03:51,737 - DEBUG - Calling on_part_data with data[0:145094]
+2025-01-20 13:03:51,737 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:03:51,737 - DEBUG - Calling on_end with no data
+2025-01-20 13:03:51,738 - ERROR - Target video 'papaya-global.mp4' not found
+2025-01-20 13:03:51,738 - ERROR - Error creating job: 500: Target video 'papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video 'papaya-global.mp4' not found
+2025-01-20 13:04:20,725 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:04:20,726 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:04:20,726 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:04:20,727 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:04:20,728 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:04:20,728 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:04:20,728 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:04:20,729 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:04:20,730 - DEBUG - Calling on_part_data with data[147:49152]
+2025-01-20 13:04:20,730 - DEBUG - Calling on_part_data with data[0:112326]
+2025-01-20 13:04:20,731 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:04:20,731 - DEBUG - Calling on_end with no data
+2025-01-20 13:04:20,733 - ERROR - Target video 'papaya-global.mp4' not found
+2025-01-20 13:04:20,733 - ERROR - Error creating job: 500: Target video 'papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video 'papaya-global.mp4' not found
+2025-01-20 13:05:11,767 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:05:11,768 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:05:11,769 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:05:11,769 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:05:11,769 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:05:11,770 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:05:11,770 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:05:11,770 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:05:11,771 - DEBUG - Calling on_part_data with data[147:98304]
+2025-01-20 13:05:11,771 - DEBUG - Calling on_part_data with data[0:63174]
+2025-01-20 13:05:11,771 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:05:11,772 - DEBUG - Calling on_end with no data
+2025-01-20 13:05:11,772 - ERROR - Target video 'papaya-global.mp4' not found
+2025-01-20 13:05:11,773 - ERROR - Error creating job: 500: Target video 'papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video 'papaya-global.mp4' not found
+2025-01-20 13:05:43,937 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:05:43,938 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:05:43,938 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:05:43,939 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:05:43,939 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:05:43,939 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:05:43,940 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:05:43,940 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:05:43,940 - DEBUG - Calling on_part_data with data[147:49152]
+2025-01-20 13:05:43,941 - DEBUG - Calling on_part_data with data[0:112326]
+2025-01-20 13:05:43,941 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:05:43,942 - DEBUG - Calling on_end with no data
+2025-01-20 13:05:43,943 - ERROR - Target video '../target_video/papaya-global.mp4' not found
+2025-01-20 13:05:43,943 - ERROR - Error creating job: 500: Target video '../target_video/papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video '../target_video/papaya-global.mp4' not found
+2025-01-20 13:06:40,954 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:06:40,955 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:06:40,955 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:06:40,955 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:06:40,957 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:06:40,957 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:06:40,957 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:06:40,957 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:06:40,957 - DEBUG - Calling on_part_data with data[147:49152]
+2025-01-20 13:06:40,958 - DEBUG - Calling on_part_data with data[0:112326]
+2025-01-20 13:06:40,959 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:06:40,959 - DEBUG - Calling on_end with no data
+2025-01-20 13:06:40,960 - ERROR - Target video '../target_video/papaya-global.mp4' not found
+2025-01-20 13:06:40,960 - ERROR - Error creating job: 500: Target video '../target_video/papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video '../target_video/papaya-global.mp4' not found
+2025-01-20 13:07:32,853 - DEBUG - Calling on_part_begin with no data
+2025-01-20 13:07:32,853 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 13:07:32,854 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 13:07:32,854 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:07:32,854 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 13:07:32,855 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 13:07:32,856 - DEBUG - Calling on_header_end with no data
+2025-01-20 13:07:32,856 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 13:07:32,856 - DEBUG - Calling on_part_data with data[147:49152]
+2025-01-20 13:07:32,857 - DEBUG - Calling on_part_data with data[0:112326]
+2025-01-20 13:07:32,857 - DEBUG - Calling on_part_end with no data
+2025-01-20 13:07:32,858 - DEBUG - Calling on_end with no data
+2025-01-20 13:07:32,858 - ERROR - Target video '../target_video/papay.mp4' not found
+2025-01-20 13:07:32,859 - ERROR - Error creating job: 500: Target video '../target_video/papay.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 145, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video '../target_video/papay.mp4' not found
