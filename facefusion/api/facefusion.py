@@ -68,7 +68,7 @@ async def process_face_fusion(
             "facefusion.py",
             "headless-run",
             "--processors", "face_swapper",
-            "--face-swapper-model", "blendswap_256",
+            "--face-swapper-model", "ghost_3_256",
             "--source-paths", source_path,
             "--target-path", TARGET_VIDEO,
             "--output-path", output_path,
