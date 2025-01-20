@@ -7,6 +7,6 @@ REFERENCE_FRAME_NUMBER = 107
 OUTPUT_VIDEO_PRESENT = "ultrafast"
 OUTPUT_VIDEO_QUALITY = "90"
 FACE_DETECTOR_SCORE = "0.3"
-FACE_SWAPPER_MODEL = "inswapper_128"
+FACE_SWAPPER_MODEL = "blendswap_256"
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
