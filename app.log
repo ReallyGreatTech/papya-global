@@ -233,3 +233,26 @@ Traceback (most recent call last):
   File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 149, in create_face_fusion_job
     raise HTTPException(status_code=500, detail=error_msg)
 fastapi.exceptions.HTTPException: 500: Target video '../target_video/papaya-global.mp4' not found
+2025-01-20 21:44:08,450 - DEBUG - Calling on_part_begin with no data
+2025-01-20 21:44:08,451 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-20 21:44:08,451 - DEBUG - Calling on_header_value with data[63:118]
+2025-01-20 21:44:08,451 - DEBUG - Calling on_header_end with no data
+2025-01-20 21:44:08,452 - DEBUG - Calling on_header_field with data[120:132]
+2025-01-20 21:44:08,452 - DEBUG - Calling on_header_value with data[134:143]
+2025-01-20 21:44:08,452 - DEBUG - Calling on_header_end with no data
+2025-01-20 21:44:08,452 - DEBUG - Calling on_headers_finished with no data
+2025-01-20 21:44:08,452 - DEBUG - Calling on_part_data with data[147:16384]
+2025-01-20 21:44:08,452 - DEBUG - Calling on_part_data with data[0:65536]
+2025-01-20 21:44:08,454 - DEBUG - Calling on_part_data with data[0:16384]
+2025-01-20 21:44:08,454 - DEBUG - Calling on_part_data with data[0:16384]
+2025-01-20 21:44:08,455 - DEBUG - Calling on_part_data with data[0:16384]
+2025-01-20 21:44:08,455 - DEBUG - Calling on_part_data with data[0:16384]
+2025-01-20 21:44:08,456 - DEBUG - Calling on_part_data with data[0:14022]
+2025-01-20 21:44:08,456 - DEBUG - Calling on_part_end with no data
+2025-01-20 21:44:08,456 - DEBUG - Calling on_end with no data
+2025-01-20 21:44:08,457 - ERROR - Target video '../target_video/papaya-global.mp4' not found
+2025-01-20 21:44:08,458 - ERROR - Error creating job: 500: Target video '../target_video/papaya-global.mp4' not found
+Traceback (most recent call last):
+  File "C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\src\facefusion\api\facefusion.py", line 149, in create_face_fusion_job
+    raise HTTPException(status_code=500, detail=error_msg)
+fastapi.exceptions.HTTPException: 500: Target video '../target_video/papaya-global.mp4' not found

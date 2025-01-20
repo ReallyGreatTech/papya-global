@@ -76,7 +76,7 @@ async def process_face_fusion(
             "--output-path", output_path,
             "--reference-face-position", str(REFERENCE_FACE_POSITION),
             "--reference-frame-number", str(REFERENCE_FRAME_NUMBER),
-            "--output-video-preset", OUTPUT_VIDEO_PRESENT,
+            # "--output-video-preset", OUTPUT_VIDEO_PRESENT,
             "--output-video-quality", OUTPUT_VIDEO_QUALITY
         ]
 
