@@ -1,5 +1,5 @@
 import os
-TARGET_VIDEO = "../target_video/papay.mp4"
+TARGET_VIDEO = "../target_video/papaya-global.mp4"
 OUTPUT_DIR = "output"
 UPLOAD_DIR = "uploads"
 REFERENCE_FACE_POSITION =  2
