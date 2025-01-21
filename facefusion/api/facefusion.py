@@ -68,14 +68,14 @@ async def process_face_fusion(
             "facefusion.py",
             "headless-run",
             "--processors", "face_swapper",
-            "--face-swapper-model", "simswap_256",
+            "--face-swapper-model", "inswapper_128",
             "--source-paths", source_path,
             "--target-path", TARGET_VIDEO,
             "--output-path", output_path,
             "--reference-face-position", str(REFERENCE_FACE_POSITION),
             "--reference-frame-number", str(REFERENCE_FRAME_NUMBER),
             "--output-video-quality", "90",
-            "--face-detector-model", "retinaface"
+
         ]
 
         # Log the command
