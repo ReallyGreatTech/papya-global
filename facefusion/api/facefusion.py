@@ -1,11 +1,11 @@
 # 1. Access and split the video in 10 sec segments - DONE
 # 2. For each segment run the command - specified
 # 3. Combine the video segments
-
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 import ffmpeg
 import os
 import math
+import subprocess
 from datetime import timedelta
 from typing import List
 
@@ -143,20 +143,60 @@ def split_video_ffmpeg(input_file: str, segment_duration: int = 10) -> List[str]
         print(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/split-video/")
-async def split_video(file: UploadFile = File(...), segment_duration: int = 10):
-    # Save the uploaded file temporarily
-    temp_file_path = f"temp_{file.filename}"
-    with open(temp_file_path, "wb") as buffer:
-        buffer.write(await file.read())
+async def process_segment(source_path: str, target_path: str, reference_face_position: str, reference_frame_number: int):
+    command = [
+        "python", "facefusion.py", "run",
+        "--source", source_path,
+        "--target", target_path,
+        "--processors", "face_swapper", 
+        "--face-swapper-model", "inswapper_128",
+        # "--face-debugger-items", "bounding-box", "face-landmark-68", "face-detector-score", "face-mask", "age", "gender", "race",
+        "--face-detector-score", "0.3",
+        "--reference-face-position", str(reference_face_position),
+        "--reference-frame-number", str(reference_frame_number)
+    ]
+
+    subprocess.run(command, check=True)
+
+@app.post("/process-video/")
+async def process_video(
+    background_tasks: BackgroundTasks,
+    source_image: UploadFile = File(...),
+    target_video: UploadFile = File(...),
+    segment_duration: int = 10
+):
+    # Save the uploaded files temporarily
+    source_temp_path = f"temp_{source_image.filename}"
+    with open(source_temp_path, "wb") as buffer:
+        buffer.write(await source_image.read())
+
+    target_temp_path = f"temp_{target_video.filename}"
+    with open(target_temp_path, "wb") as buffer:
+        buffer.write(await target_video.read())
 
     try:
-        output_files = split_video_ffmpeg(temp_file_path, segment_duration)
-        return {"output_files": output_files}
+        output_files = split_video_ffmpeg(target_temp_path, segment_duration)
+
+        for idx, segment_path in enumerate(output_files, 1):
+            reference_face_position = f"{idx * 100}:{idx * 100}"  # Adjust as needed
+            reference_frame_number = idx * 100  # Adjust as needed
+
+            background_tasks.add_task(
+                process_segment,
+                source_temp_path,
+                segment_path,
+                reference_face_position,
+                reference_frame_number
+            )
+
+        return {"message": "Video processing started in the background"}
+
     finally:
-        # Clean up the temporary file
-        if os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
+        # Clean up the temporary files
+        if os.path.exists(source_temp_path):
+            os.remove(source_temp_path)
+        if os.path.exists(target_temp_path):
+            os.remove(target_temp_path)
 
 if __name__ == "__main__":
     import uvicorn
