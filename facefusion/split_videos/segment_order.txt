@@ -1,0 +1,5 @@
+Video Segment Order:
+
+Sequence 001: temp_20102_PAPAYA GLOBAL_30s_Youtube_True_View_seq001_time00_00_to_00_10.mp4
+Sequence 002: temp_20102_PAPAYA GLOBAL_30s_Youtube_True_View_seq002_time00_10_to_00_20.mp4
+Sequence 003: temp_20102_PAPAYA GLOBAL_30s_Youtube_True_View_seq003_time00_20_to_00_30.mp4
