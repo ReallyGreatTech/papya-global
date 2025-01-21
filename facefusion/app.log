@@ -2769,3 +2769,29 @@ Merging: 100%|==========| 264/264 [00:07<00:00, 35.09frame/s]
 
 2025-01-17 11:26:30,193 - INFO - Job 1b916ba9 completed successfully
 2025-01-17 11:29:00,911 - INFO - Checking status for job 1b916ba9
+2025-01-21 18:47:13,913 - DEBUG - Calling on_part_begin with no data
+2025-01-21 18:47:13,913 - DEBUG - Calling on_header_field with data[42:61]
+2025-01-21 18:47:13,914 - DEBUG - Calling on_header_value with data[63:119]
+2025-01-21 18:47:13,914 - DEBUG - Calling on_header_end with no data
+2025-01-21 18:47:13,914 - DEBUG - Calling on_header_field with data[121:133]
+2025-01-21 18:47:13,914 - DEBUG - Calling on_header_value with data[135:144]
+2025-01-21 18:47:13,915 - DEBUG - Calling on_header_end with no data
+2025-01-21 18:47:13,915 - DEBUG - Calling on_headers_finished with no data
+2025-01-21 18:47:13,915 - DEBUG - Calling on_part_data with data[148:32768]
+2025-01-21 18:47:13,916 - DEBUG - Calling on_part_data with data[0:262144]
+2025-01-21 18:47:13,917 - DEBUG - Calling on_part_data with data[0:32768]
+2025-01-21 18:47:13,917 - DEBUG - Calling on_part_data with data[0:49152]
+2025-01-21 18:47:13,917 - DEBUG - Calling on_part_data with data[0:49152]
+2025-01-21 18:47:13,918 - DEBUG - Calling on_part_data with data[0:32768]
+2025-01-21 18:47:13,919 - DEBUG - Calling on_part_data with data[0:16384]
+2025-01-21 18:47:13,919 - DEBUG - Calling on_part_data with data[0:16384]
+2025-01-21 18:47:13,920 - DEBUG - Calling on_part_data with data[0:49152]
+2025-01-21 18:47:13,920 - DEBUG - Calling on_part_data with data[0:32768]
+2025-01-21 18:47:13,921 - DEBUG - Calling on_part_data with data[0:65536]
+2025-01-21 18:47:13,921 - DEBUG - Calling on_part_data with data[0:47447]
+2025-01-21 18:47:13,922 - DEBUG - Calling on_part_end with no data
+2025-01-21 18:47:13,922 - DEBUG - Calling on_end with no data
+2025-01-21 18:47:13,923 - INFO - Creating new job 62197ac9
+2025-01-21 18:47:13,924 - INFO - Saving uploaded file to uploads\cad32fe8.png
+2025-01-21 18:47:13,929 - INFO - Starting job 62197ac9 with source path: uploads\cad32fe8.png
+2025-01-21 18:47:13,930 - INFO - Executing first command: C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\venv\Scripts\python.exe facefusion.py headless-run --processors face_swapper --face-swapper-model inswapper_128 --source-paths uploads\cad32fe8.png --target-path ../target_video/2010.mp4 --output-path output\output_62197ac9_first_run.mp4 --reference-face-position 0 --reference-frame-number 107 --output-video-quality 95 --face-detector-score 0.3
