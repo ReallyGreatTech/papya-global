@@ -74,9 +74,9 @@ async def process_face_fusion(
             "--output-path", output_path,
             "--reference-face-position", str(REFERENCE_FACE_POSITION),
             "--reference-frame-number", str(REFERENCE_FRAME_NUMBER),
-            "--output-video-quality", "90",
+            "--output-video-quality", "95",
             "--face-detector-score", "0.3",
-            "--face-detector-angles", "0 180"
+           
 
         ]
 
