@@ -59,11 +59,11 @@ async def process_face_fusion(
         # Create output directory if it doesn't exist
         os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-        # Generate unique output filename
-        output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}.mp4")
+        # Generate unique output filename for the first run
+        first_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_first_run.mp4")
 
-        # Construct command
-        command = [
+        # Construct command for the first run
+        first_command = [
             sys.executable,  # Use current Python interpreter
             "facefusion.py",
             "headless-run",
@@ -71,55 +71,103 @@ async def process_face_fusion(
             "--face-swapper-model", "inswapper_128",
             "--source-paths", source_path,
             "--target-path", TARGET_VIDEO,
-            "--output-path", output_path,
+            "--output-path", first_output_path,
             "--reference-face-position", str(REFERENCE_FACE_POSITION),
             "--reference-frame-number", str(REFERENCE_FRAME_NUMBER),
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
-           
-
         ]
 
-        # Log the command
-        command_str = " ".join(command)
-        logger.info(f"Executing command: {command_str}")
+        # Log the first command
+        first_command_str = " ".join(first_command)
+        logger.info(f"Executing first command: {first_command_str}")
 
-        # Run the command
-        process = subprocess.Popen(
-            command,
+        # Run the first command
+        first_process = subprocess.Popen(
+            first_command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True  # Return strings instead of bytes
         )
 
-        stdout, stderr = process.communicate()
-        logger.info(f"Process stdout: {stdout}")
+        stdout, stderr = first_process.communicate()
+        logger.info(f"First process stdout: {stdout}")
         if stderr:
-            logger.error(f"Process stderr: {stderr}")
+            logger.error(f"First process stderr: {stderr}")
 
-        end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        if process.returncode == 0 and os.path.exists(output_path):
-            logger.info(f"Job {job_id} completed successfully")
-            job_statuses[job_id] = JobStatus(
-                job_id=job_id,
-                status="completed",
-                output_path=output_path,
-                command=command_str,
-                start_time=start_time,
-                end_time=end_time
-            )
-
-            # Delete the source file after processing
-            os.remove(source_path)
-        else:
-            error_msg = f"Process failed with return code {process.returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
-            logger.error(f"Job {job_id} failed: {error_msg}")
+        if first_process.returncode != 0 or not os.path.exists(first_output_path):
+            error_msg = f"First process failed with return code {first_process.returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
+            logger.error(f"Job {job_id} failed during first run: {error_msg}")
             job_statuses[job_id] = JobStatus(
                 job_id=job_id,
                 status="failed",
                 error=error_msg,
-                command=command_str,
+                command=first_command_str,
+                start_time=start_time,
+                end_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            )
+            return
+
+        # Generate unique output filename for the second run
+        second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_final.mp4")
+
+        # Construct command for the second run
+        second_command = [
+            sys.executable,  # Use current Python interpreter
+            "facefusion.py",
+            "headless-run",
+            "--processors", "face_swapper",
+            "--face-swapper-model", "inswapper_128",
+            "--source-paths", source_path,
+            "--target-path", first_output_path,  # Use the output of the first run as the new target
+            "--output-path", second_output_path,
+            "--reference-face-position", "0",  # Updated parameters for the second run
+            "--reference-frame-number", "229",
+            "--output-video-quality", "95",
+            "--face-detector-score", "0.3",
+        ]
+
+        # Log the second command
+        second_command_str = " ".join(second_command)
+        logger.info(f"Executing second command: {second_command_str}")
+
+        # Run the second command
+        second_process = subprocess.Popen(
+            second_command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True  # Return strings instead of bytes
+        )
+
+        stdout, stderr = second_process.communicate()
+        logger.info(f"Second process stdout: {stdout}")
+        if stderr:
+            logger.error(f"Second process stderr: {stderr}")
+
+        end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        if second_process.returncode == 0 and os.path.exists(second_output_path):
+            logger.info(f"Job {job_id} completed successfully")
+            job_statuses[job_id] = JobStatus(
+                job_id=job_id,
+                status="completed",
+                output_path=second_output_path,
+                command=f"First command: {first_command_str}\nSecond command: {second_command_str}",
+                start_time=start_time,
+                end_time=end_time
+            )
+
+            # Delete the source file and first run output after processing
+            os.remove(source_path)
+            os.remove(first_output_path)
+        else:
+            error_msg = f"Second process failed with return code {second_process.returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
+            logger.error(f"Job {job_id} failed during second run: {error_msg}")
+            job_statuses[job_id] = JobStatus(
+                job_id=job_id,
+                status="failed",
+                error=error_msg,
+                command=f"First command: {first_command_str}\nSecond command: {second_command_str}",
                 start_time=start_time,
                 end_time=end_time
             )
