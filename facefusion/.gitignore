@@ -4,5 +4,5 @@ __pycache__
 .jobs
 .idea
 .vscode
-output/
+
 app.log
