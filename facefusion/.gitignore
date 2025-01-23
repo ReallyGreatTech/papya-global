@@ -4,3 +4,12 @@ __pycache__
 .jobs
 .idea
 .vscode
+
+*.pyc
+*.pyo
+
+upload/
+output/
+.venv/
+
+.env

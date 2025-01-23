@@ -10,6 +10,12 @@ from typing import Optional
 import logging
 import sys
 from datetime import datetime
+from typing import Dict
+from api.services import service_module
+from api.s3_service import s3_manager
+import requests
+import time
+
 
 # Enhanced logging setup
 logging.basicConfig(
@@ -44,6 +50,10 @@ def generate_unique_filename(original_filename: str) -> str:
 async def process_face_fusion(
     job_id: str,
     source_path: str,
+    email:str,
+    flag:bool,
+    admin_email:str,
+    fname:str
 ):
     """Background task to process face fusion."""
     start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -82,7 +92,7 @@ async def process_face_fusion(
         first_command_str = " ".join(first_command)
         logger.info(f"Executing first command: {first_command_str}")
 
-        # Run the first command
+        # # Run the first command
         first_process = subprocess.Popen(
             first_command,
             stdout=subprocess.PIPE,
@@ -106,6 +116,11 @@ async def process_face_fusion(
                 start_time=start_time,
                 end_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             )
+
+            # send email to
+            reciepient = email if flag else admin_email 
+            await service_module.send_email(msg=error_msg, url="", email=reciepient, name=fname)
+
             return
 
         # Generate unique output filename for the second run
@@ -131,7 +146,7 @@ async def process_face_fusion(
         second_command_str = " ".join(second_command)
         logger.info(f"Executing second command: {second_command_str}")
 
-        # Run the second command
+        # # Run the second command
         second_process = subprocess.Popen(
             second_command,
             stdout=subprocess.PIPE,
@@ -160,6 +175,14 @@ async def process_face_fusion(
             # Delete the source file and first run output after processing
             os.remove(source_path)
             os.remove(first_output_path)
+
+            #upload the ouput to s3 and
+            #send email to stateholders from here.
+            url = await s3_manager.upload_file(f"output_{job_id}_final.mp4",second_output_path)
+            # print(url)
+            reciepient = email if flag else admin_email 
+            await service_module.send_email(msg="", url=url, email=reciepient, name=fname)
+
         else:
             error_msg = f"Second process failed with return code {second_process.returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
             logger.error(f"Job {job_id} failed during second run: {error_msg}")
@@ -172,6 +195,10 @@ async def process_face_fusion(
                 end_time=end_time
             )
 
+             # send email to
+            reciepient = email if flag else admin_email 
+            await service_module.send_email(msg=error_msg, url="", email=reciepient, name=fname)
+
     except Exception as e:
         end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         error_msg = f"Error processing job {job_id}: {str(e)}"
@@ -183,6 +210,77 @@ async def process_face_fusion(
             start_time=start_time,
             end_time=end_time
         )
+
+@app.post("/process-swap/")
+async def create_face_fusion_job(
+    background_tasks: BackgroundTasks,
+    body: Dict
+):
+    try:
+        admin_email = "awal@reallygreattech.com"
+        email: str = body['email']
+        send_flag:bool = body['send_flag']
+        linkedin_url: str = body['linkedin_url']
+
+        #inport service and call linkedin scrapper API
+        linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
+        print(linkedin_data["profile_pic_url"])
+
+        # Create temporary directory for uploads
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+        # Download image with unique name
+        source_filename = generate_unique_filename("profile_pic.png")
+        source_path = os.path.join(UPLOAD_DIR, source_filename)
+
+        # Download image
+        logger.info(f"Downloading image to {source_path}")
+        with requests.get(linkedin_data["profile_pic_url"]) as response:
+            response.raise_for_status()
+            with open(source_path, "wb") as buffer:
+                buffer.write(response.content)
+
+        # Validate target video exists
+        if not os.path.exists(TARGET_VIDEO):
+            error_msg = f"Target video '{TARGET_VIDEO}' not found"
+            logger.error(error_msg)
+            raise HTTPException(status_code=500, detail=error_msg)
+
+        # Generate job ID
+        job_id = str(uuid.uuid4())[:8]
+        logger.info(f"Creating new job {job_id}")
+
+        #add second task
+        job_statuses[job_id] = JobStatus(
+            job_id=job_id,
+            status="processing",
+            start_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        )
+
+        fname = linkedin_data["first_name"]
+
+        # Add background task
+        background_tasks.add_task(
+            process_face_fusion,
+            job_id,
+            source_path,
+            email,
+            send_flag,
+            admin_email,
+            fname
+        )
+
+        return JSONResponse({
+            "job_id": job_id,
+            "message": "Processing started",
+            "status": "processing"
+        })
+
+    except Exception as e:
+        error_msg = f"Error creating job: {str(e)}"
+        logger.exception(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
+
 
 @app.post("/process-face-fusion/")
 async def create_face_fusion_job(
@@ -231,6 +329,8 @@ async def create_face_fusion_job(
             "message": "Processing started",
             "status": "processing"
         })
+    
+
 
     except Exception as e:
         error_msg = f"Error creating job: {str(e)}"
