@@ -1,4 +1,4 @@
-name: Dev-Papya-Global CI/CD Pipeline
+name: Dev Papya-Global CI/CD Pipeline
 
 on:
   push:
