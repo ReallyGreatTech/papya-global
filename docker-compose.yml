@@ -1,5 +1,5 @@
 services:
-  facefusion-cpu:
+  facefusion-cuda:
     image: 330858616968.dkr.ecr.eu-north-1.amazonaws.com/papyaglobal-dev:latest
     command: [ 'uvicorn', 'api.facefusion:app', '--reload', '--host', '0.0.0.0', '--port', '7860' ]
     env_file:
@@ -9,4 +9,11 @@ services:
       - .caches:/facefusion/.caches
       - .jobs:/facefusion/.jobs
     ports:
-      - "7865:7860"
+      - "7870:7860"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu, video ]
