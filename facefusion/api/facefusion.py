@@ -86,6 +86,7 @@ async def process_face_fusion(
             "--reference-frame-number", str(REFERENCE_FRAME_NUMBER),
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
+            "--execution-providers", "cuda"
         ]
 
         # Log the first command
@@ -118,7 +119,7 @@ async def process_face_fusion(
             )
 
             # send email to
-            reciepient = email if flag else admin_email 
+            reciepient = email if flag else admin_email
             await service_module.send_email(msg=error_msg, url="", email=reciepient, name=fname)
 
             return
@@ -140,6 +141,7 @@ async def process_face_fusion(
             "--reference-frame-number", "229",
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
+            "--execution-providers", "cuda"
         ]
 
         # Log the second command
@@ -180,7 +182,7 @@ async def process_face_fusion(
             #send email to stateholders from here.
             url = await s3_manager.upload_file(f"output_{job_id}_final.mp4",second_output_path)
             # print(url)
-            reciepient = email if flag else admin_email 
+            reciepient = email if flag else admin_email
             await service_module.send_email(msg="", url=url, email=reciepient, name=fname)
 
         else:
@@ -196,7 +198,7 @@ async def process_face_fusion(
             )
 
              # send email to
-            reciepient = email if flag else admin_email 
+            reciepient = email if flag else admin_email
             await service_module.send_email(msg=error_msg, url="", email=reciepient, name=fname)
 
     except Exception as e:
@@ -329,7 +331,7 @@ async def create_face_fusion_job(
             "message": "Processing started",
             "status": "processing"
         })
-    
+
 
 
     except Exception as e:
