@@ -6766,3 +6766,11 @@ Traceback (most recent call last):
     raise SMTPDataError(response.code, response.message)
 aiosmtplib.errors.SMTPDataError: (554, 'Message rejected: Email address is not verified. The following identities failed the check in region EU-NORTH-1: sredeemer@gmail.com')
 2025-01-27 14:03:26,795 - INFO - Checking status for job b826860c
+2025-01-27 14:14:40,828 - DEBUG - Starting new HTTPS connection (1): nubela.co:443
+2025-01-27 14:14:42,876 - DEBUG - https://nubela.co:443 "GET /proxycurl/api/v2/linkedin?linkedin_profile_url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fredeemer-salami-okekale-a69a0215b%2F&use_cache=if-recent HTTP/1.1" 200 None
+2025-01-27 14:14:43,198 - INFO - Downloading image to uploads\e98e2584.png
+2025-01-27 14:14:43,201 - DEBUG - Starting new HTTPS connection (1): s3.us-west-000.backblazeb2.com:443
+2025-01-27 14:14:44,670 - DEBUG - https://s3.us-west-000.backblazeb2.com:443 "GET /proxycurl/person/redeemer-salami-okekale-a69a0215b/profile?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=0004d7f56a0400b0000000001%2F20250127%2Fus-west-000%2Fs3%2Faws4_request&X-Amz-Date=20250127T141442Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b9276feb3eb97ab666de1dbc14d04b44d27286eb921cc1eeaad262a8c4c3e5ad HTTP/1.1" 200 117471
+2025-01-27 14:14:45,644 - INFO - Creating new job c13e0ee3
+2025-01-27 14:14:45,646 - INFO - Starting job c13e0ee3 with source path: uploads\e98e2584.png
+2025-01-27 14:14:45,647 - INFO - Executing first command: C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\venv\Scripts\python.exe facefusion.py headless-run --processors face_swapper --face-swapper-model inswapper_128 --source-paths uploads\e98e2584.png --target-path ../target_video/2010.mp4 --output-path output\output_c13e0ee3_first_run.mp4 --reference-face-position 0 --reference-frame-number 107 --output-video-quality 95 --face-detector-score 0.3

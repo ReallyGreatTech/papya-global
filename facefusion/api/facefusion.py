@@ -86,7 +86,7 @@ async def process_face_fusion(
             "--reference-frame-number", str(REFERENCE_FRAME_NUMBER),
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
-            # "--execution-providers", "cuda"
+            "--execution-providers", "cuda"
         ]
 
         # Log the first command
@@ -141,7 +141,7 @@ async def process_face_fusion(
             "--reference-frame-number", "229",
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
-            # "--execution-providers", "cuda"
+            "--execution-providers", "cuda"
         ]
 
         # Log the second command
