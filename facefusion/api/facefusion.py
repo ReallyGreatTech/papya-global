@@ -1,4 +1,4 @@
-from fastapi import FastAPI, BackgroundTasks, UploadFile, HTTPException
+from fastapi import FastAPI, BackgroundTasks, UploadFile, HTTPException, Form
 from fastapi.responses import JSONResponse, FileResponse
 from . constants import TARGET_VIDEO, OUTPUT_DIR, UPLOAD_DIR,  REFERENCE_FACE_POSITION, REFERENCE_FRAME_NUMBER
 import subprocess
@@ -50,10 +50,10 @@ def generate_unique_filename(original_filename: str) -> str:
 async def process_face_fusion(
     job_id: str,
     source_path: str,
-    email:str,
-    flag:bool,
-    admin_email:str,
-    fname:str
+    # email:str,
+    # flag:bool,
+    # admin_email:str,
+    # fname:str
 ):
     """Background task to process face fusion."""
     start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -143,6 +143,7 @@ async def process_face_fusion(
             "--reference-frame-number", "229",
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
+            "--execution-providers", "cuda",
             "--execution-device-id", "0",  # Set device ID (default 0)
     		"--execution-thread-count", "32",  # Maximum thread count
     		"--execution-queue-count", "2"  # Increase the queue count for parallel processing
@@ -224,14 +225,9 @@ async def process_face_fusion(
 @app.post("/process-swap/")
 async def create_face_fusion_job(
     background_tasks: BackgroundTasks,
-    body: Dict
+    linkedin_url: str = Form(...)
 ):
     try:
-        admin_email = "awal@reallygreattech.com"
-        email: str = body['email']
-        send_flag:bool = body['send_flag']
-        linkedin_url: str = body['linkedin_url']
-
         # Import service and call LinkedIn scraper API
         linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
         print(linkedin_data["profile_pic_url"])
@@ -274,10 +270,7 @@ async def create_face_fusion_job(
             process_face_fusion,
             job_id,
             source_path,
-            email,
-            send_flag,
-            admin_email,
-            fname
+            # fname
         )
 
         return JSONResponse({
