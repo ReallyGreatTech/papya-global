@@ -7,7 +7,7 @@ on:
       - feat/service-endpoint
 
 env:
-  BUILD_ENV_FILE_SCRIPT: "${{ github.workspace }}/build-env.py"
+  BUILD_ENV_FILE_SCRIPT: "${{ github.workspace }}/build-env.py" 
   SECRET_NAME: "papyagloba/dev"
   APP_DIR: "${{ github.workspace }}"
 
