@@ -1,6 +1,6 @@
 from fastapi import FastAPI, BackgroundTasks, UploadFile, HTTPException
 from fastapi.responses import JSONResponse, FileResponse
-from . constants import TARGET_VIDEO, OUTPUT_DIR, UPLOAD_DIR, REFERENCE_FACE_POSITION, REFERENCE_FRAME_NUMBER
+from . constants import TARGET_VIDEO, OUTPUT_DIR, UPLOAD_DIR,  REFERENCE_FACE_POSITION, REFERENCE_FRAME_NUMBER
 import subprocess
 import os
 import uuid
@@ -86,7 +86,7 @@ async def process_face_fusion(
             "--reference-frame-number", str(REFERENCE_FRAME_NUMBER),
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
-            "--execution-providers", "cuda"
+            # "--execution-providers", "cuda"
         ]
 
         # Log the first command
@@ -118,9 +118,9 @@ async def process_face_fusion(
                 end_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             )
 
-            # send email to
-            reciepient = email if flag else admin_email
-            await service_module.send_email(msg=error_msg, url="", email=reciepient, name=fname)
+            # Commented out email sending
+            # reciepient = email if flag else admin_email
+            # await service_module.send_email(msg=error_msg, url="", email=reciepient, name=fname)
 
             return
 
@@ -141,7 +141,7 @@ async def process_face_fusion(
             "--reference-frame-number", "229",
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
-            "--execution-providers", "cuda"
+            # "--execution-providers", "cuda"
         ]
 
         # Log the second command
@@ -178,12 +178,15 @@ async def process_face_fusion(
             os.remove(source_path)
             os.remove(first_output_path)
 
-            #upload the ouput to s3 and
-            #send email to stateholders from here.
-            url = await s3_manager.upload_file(f"output_{job_id}_final.mp4",second_output_path)
-            # print(url)
-            reciepient = email if flag else admin_email
-            await service_module.send_email(msg="", url=url, email=reciepient, name=fname)
+            # Upload the output to S3 and get the URL
+            url = await s3_manager.upload_file(f"output_{job_id}_final.mp4", second_output_path)
+
+            # Commented out email sending
+            # reciepient = email if flag else admin_email
+            # await service_module.send_email(msg="", url=url, email=reciepient, name=fname)
+
+            # Return the URL in the job status
+            job_statuses[job_id].output_path = url
 
         else:
             error_msg = f"Second process failed with return code {second_process.returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
@@ -197,9 +200,9 @@ async def process_face_fusion(
                 end_time=end_time
             )
 
-             # send email to
-            reciepient = email if flag else admin_email
-            await service_module.send_email(msg=error_msg, url="", email=reciepient, name=fname)
+            # Commented out email sending
+            # reciepient = email if flag else admin_email
+            # await service_module.send_email(msg=error_msg, url="", email=reciepient, name=fname)
 
     except Exception as e:
         end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -224,7 +227,7 @@ async def create_face_fusion_job(
         send_flag:bool = body['send_flag']
         linkedin_url: str = body['linkedin_url']
 
-        #inport service and call linkedin scrapper API
+        # Import service and call LinkedIn scraper API
         linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
         print(linkedin_data["profile_pic_url"])
 
@@ -252,7 +255,7 @@ async def create_face_fusion_job(
         job_id = str(uuid.uuid4())[:8]
         logger.info(f"Creating new job {job_id}")
 
-        #add second task
+        # Add second task
         job_statuses[job_id] = JobStatus(
             job_id=job_id,
             status="processing",
@@ -332,8 +335,6 @@ async def create_face_fusion_job(
             "status": "processing"
         })
 
-
-
     except Exception as e:
         error_msg = f"Error creating job: {str(e)}"
         logger.exception(error_msg)
@@ -351,6 +352,10 @@ async def get_job_status(job_id: str):
     job_status = job_statuses[job_id]
 
     if job_status.status == "completed":
-        return FileResponse(job_status.output_path, media_type="video/mp4", filename=f"output_{job_id}.mp4")
+        return JSONResponse({
+            "job_id": job_id,
+            "status": "completed",
+            "output_url": job_status.output_path
+        })
     else:
         return job_status
