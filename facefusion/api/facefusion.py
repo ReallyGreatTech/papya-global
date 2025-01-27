@@ -63,6 +63,11 @@ async def process_face_fusion(
         # Verify files exist
         if not os.path.exists(source_path):
             raise FileNotFoundError(f"Source file not found: {source_path}")
+
+        # Validate the file is an image (extension check or use PIL)
+        if not source_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+            raise ValueError(f"Invalid source file format: {source_path}. Must be an image.")
+
         if not os.path.exists(TARGET_VIDEO):
             raise FileNotFoundError(f"Target video not found: {TARGET_VIDEO}")
 
@@ -143,7 +148,6 @@ async def process_face_fusion(
             "--reference-frame-number", "229",
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
-            "--execution-providers", "cuda",
             "--execution-device-id", "0",  # Set device ID (default 0)
     		"--execution-thread-count", "32",  # Maximum thread count
     		"--execution-queue-count", "2"  # Increase the queue count for parallel processing
@@ -241,10 +245,31 @@ async def create_face_fusion_job(
 
         # Download image
         logger.info(f"Downloading image to {source_path}")
-        with requests.get(linkedin_data["profile_pic_url"]) as response:
-            response.raise_for_status()
-            with open(source_path, "wb") as buffer:
-                buffer.write(response.content)
+        try:
+            with requests.get(linkedin_data["profile_pic_url"]) as response:
+                response.raise_for_status()
+                with open(source_path, "wb") as buffer:
+                    buffer.write(response.content)
+
+            # Validate the downloaded file
+            if not os.path.exists(source_path):
+                error_msg = f"Downloaded file not found at {source_path}"
+                logger.error(error_msg)
+                raise FileNotFoundError(error_msg)
+
+            # Validate the file format
+            valid_extensions = ['.png', '.jpg', '.jpeg']
+            if not any(source_path.lower().endswith(ext) for ext in valid_extensions):
+                error_msg = f"Invalid image file format: {source_path}. Supported formats: {', '.join(valid_extensions)}"
+                logger.error(error_msg)
+                raise ValueError(error_msg)
+
+            logger.info(f"Image downloaded and validated successfully: {source_path}")
+
+        except requests.exceptions.RequestException as e:
+            error_msg = f"Error downloading image from {linkedin_data['profile_pic_url']}: {str(e)}"
+            logger.error(error_msg)
+            raise HTTPException(status_code=500, detail=error_msg) from e
 
         # Validate target video exists
         if not os.path.exists(TARGET_VIDEO):
