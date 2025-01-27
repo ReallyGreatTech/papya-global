@@ -86,7 +86,9 @@ async def process_face_fusion(
             "--reference-frame-number", str(REFERENCE_FRAME_NUMBER),
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
-            "--execution-providers", "cuda"
+           	"--execution-device-id", "0",  # Set device ID (default 0)
+    		"--execution-thread-count", "32",  # Maximum thread count
+    		"--execution-queue-count", "2"  # Increase the queue count for parallel processing
         ]
 
         # Log the first command
@@ -141,7 +143,10 @@ async def process_face_fusion(
             "--reference-frame-number", "229",
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
-            "--execution-providers", "cuda"
+            "--execution-device-id", "0",  # Set device ID (default 0)
+    		"--execution-thread-count", "32",  # Maximum thread count
+    		"--execution-queue-count", "2"  # Increase the queue count for parallel processing
+
         ]
 
         # Log the second command
