@@ -6775,6 +6775,7 @@ aiosmtplib.errors.SMTPDataError: (554, 'Message rejected: Email address is not v
 2025-01-27 14:14:45,646 - INFO - Starting job c13e0ee3 with source path: uploads\e98e2584.png
 2025-01-27 14:14:45,647 - INFO - Executing first command: C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\venv\Scripts\python.exe facefusion.py headless-run --processors face_swapper --face-swapper-model inswapper_128 --source-paths uploads\e98e2584.png --target-path ../target_video/2010.mp4 --output-path output\output_c13e0ee3_first_run.mp4 --reference-face-position 0 --reference-frame-number 107 --output-video-quality 95 --face-detector-score 0.3
 <<<<<<< HEAD
+<<<<<<< HEAD
 2025-01-27 17:05:09,573 - DEBUG - Calling on_field_start with no data
 2025-01-27 17:05:09,577 - DEBUG - Calling on_field_name with data[0:12]
 2025-01-27 17:05:09,577 - DEBUG - Calling on_field_data with data[13:87]
@@ -10611,5 +10612,7 @@ Processing:  25%|==        | 186/750 [02:17<06:56,  1.35frame/s, execution_provi
 2025-01-27 22:08:45,131 - INFO - Creating new job fdb2551b
 2025-01-27 22:08:45,134 - INFO - Starting job fdb2551b with source path: uploads\d4efdf51.png
 2025-01-27 22:08:45,135 - INFO - Executing first command: C:\Users\srede\OneDrive\Desktop\Projex\PapyaGlobal-demo\venv\Scripts\python.exe facefusion.py headless-run --processors face_swapper --face-swapper-model inswapper_128 --source-paths uploads\d4efdf51.png --target-path ../target_video/2010.mp4 --output-path output\output_fdb2551b_first_run.mp4 --reference-face-position 0 --reference-frame-number 107 --output-video-quality 95 --face-detector-score 0.3 --execution-device-id 0 --execution-thread-count 32 --execution-queue-count 2
+=======
+>>>>>>> parent of 022bb69 (form)
 =======
 >>>>>>> parent of 022bb69 (form)
