@@ -11,6 +11,8 @@ import sys
 from datetime import datetime
 from api.services import service_module
 from api.s3_service import s3_manager
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 import requests
 import trio
 from subprocess import PIPE
@@ -18,7 +20,7 @@ import os
 import sys
 # Enhanced logging setup
 logging.basicConfig(
-    level=logging.DEBUG,
+    # level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('app.log'),
@@ -27,10 +29,19 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+
+# MongoDB setup
+MONGO_DETAILS = "mongodb+srv://bargains_pro:MOIookr5SFne3vWK@cluster0.je8x5oh.mongodb.net/"
+client = MongoClient(MONGO_DETAILS)
+db = client.face_fusion_db
+jobs_collection = db.get_collection("jobs")
+
 app = FastAPI()
 
 # (Swap to proper database)
 job_statuses = {}
+
 
 class JobStatus(BaseModel):
     job_id: str
@@ -64,6 +75,7 @@ async def trio_subprocess(command: list) -> tuple:
         logger.error(f"Error in trio_subprocess: {str(e)}")
         raise
 
+
 async def process_face_fusion(
     job_id: str,
     source_path: str,
@@ -77,11 +89,19 @@ async def process_face_fusion(
     try:
         logger.info(f"Starting job {job_id} with source path: {source_path}")
 
+		# Insert initial job status in MongoDB
+        jobs_collection.insert_one({
+            "job_id": job_id,
+            "status": "processing",
+            "start_time": start_time,
+            "email": email,
+        })
+
         # Validate source file path
         if not os.path.exists(source_path):
             raise FileNotFoundError(f"Source file not found: {source_path}")
 
-        # Validate the file is an image (extension check or use PIL)
+        # Validate the file is an image (extension check )
         logger.debug(f"Validating the format of source file: {source_path}")
         if not source_path.lower().endswith(('.png', '.jpg', '.jpeg')):
             raise ValueError(f"Invalid source file format: {source_path}. Must be an image.")
@@ -90,6 +110,8 @@ async def process_face_fusion(
         logger.debug(f"Validating the presence of target video: {TARGET_VIDEO}")
         if not os.path.exists(TARGET_VIDEO):
             raise FileNotFoundError(f"Target video not found: {TARGET_VIDEO}")
+        
+        # Awal
 
         # Create output directory if it doesn't exist
         os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -138,6 +160,16 @@ async def process_face_fusion(
                 start_time=start_time,
                 end_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             )
+            #save status
+            jobs_collection.update_one(
+                {"job_id": job_id},
+                {"$set": {
+                "status": "failed",
+                "error": error_msg,
+                "command": first_command_str,
+                "end_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }})
+
             return
 
         # Generate unique output filename for the second run
@@ -195,6 +227,17 @@ async def process_face_fusion(
 
             # Return the URL in the job status
             job_statuses[job_id].output_path = url
+
+            # Update the job status in the database
+            jobs_collection.update_one(
+                {"job_id": job_id},
+                {"$set": {
+                    "status": "completed",
+                    "output_path": url,
+                    # "command": f"First command: {first_command_str}\nSecond command: {second_command_str}",
+                    "end_time": end_time
+                }}
+            )
 
             # Send email to admin or user based on flag (keep commented for future use)
             # if flag:
@@ -275,9 +318,25 @@ async def create_face_fusion_job(
         logger.error(f"Error creating fusion job: {e}")
         raise HTTPException(status_code=500, detail=f"Error processing face fusion job: {e}")
 
-@app.get("/job-status/{job_id}")
+# @app.get("/job-status/{job_id}")
+# async def get_job_status(job_id: str):
+#     if job_id in job_statuses:
+#         return job_statuses[job_id]
+#     else:
+#         raise HTTPException(status_code=404, detail="Job not found.")
+
+@app.get("/job/{job_id}/status/")
 async def get_job_status(job_id: str):
-    if job_id in job_statuses:
-        return job_statuses[job_id]
-    else:
-        raise HTTPException(status_code=404, detail="Job not found.")
+    """API endpoint to get the status of a job."""
+    try:
+        # Fetch the job status from MongoDB
+        job_status =  jobs_collection.find_one({"job_id": job_id}, {"_id": 0})
+
+        if job_status:
+            return JSONResponse(status_code=200, content=job_status)
+        else:
+            raise HTTPException(status_code=404, detail="Job not found")
+
+    except Exception as e:
+        logger.error(f"Error in /job/{job_id}/status endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
