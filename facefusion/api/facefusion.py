@@ -113,7 +113,7 @@ async def process_face_fusion(
             "--face-detector-score", "0.3",
             "--execution-device-id", "0",  # Set device ID (default 0)
             "--execution-thread-count", "32",  # Maximum thread count
-            "--execution-queue-count", "2"  # Increase the queue count for parallel processing
+            "--execution-queue-count", "2"
         ]
 
         # Log the first command
@@ -149,7 +149,7 @@ async def process_face_fusion(
             "facefusion.py",
             "headless-run",
             "--processors", "face_swapper",
-            "--face-swapper-model", "inswapper_128",
+            "--face-swapper-model", "inswapper_128_fp16",
             "--source-paths", source_path,
             "--target-path", first_output_path,  # Use the output of the first run as the new target
             "--output-path", second_output_path,
@@ -159,7 +159,7 @@ async def process_face_fusion(
             "--face-detector-score", "0.3",
             "--execution-device-id", "0",  # Set device ID (default 0)
             "--execution-thread-count", "32",  # Maximum thread count
-            "--execution-queue-count", "2"  # Increase the queue count for parallel processing
+            "--execution-queue-count", "2"
         ]
 
         # Log the second command
