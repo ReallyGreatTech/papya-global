@@ -340,3 +340,22 @@ async def get_job_status(job_id: str):
     except Exception as e:
         logger.error(f"Error in /job/{job_id}/status endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+
+@app.get("/health")
+async def health_check():
+    """API endpoint for health check."""
+    try:
+        # Check if the MongoDB connection is healthy
+        client.server_info()
+
+        # Add any other health checks as needed (e.g., checking other dependencies)
+
+        return JSONResponse(status_code=200, content={"status": "ok"})
+
+    except Exception as e:
+        logger.error(f"Error in /health endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
