@@ -110,7 +110,7 @@ async def process_face_fusion(
         logger.debug(f"Validating the presence of target video: {TARGET_VIDEO}")
         if not os.path.exists(TARGET_VIDEO):
             raise FileNotFoundError(f"Target video not found: {TARGET_VIDEO}")
-        
+
         # Awal
 
         # Create output directory if it doesn't exist
@@ -135,7 +135,8 @@ async def process_face_fusion(
             "--face-detector-score", "0.3",
             "--execution-device-id", "0",  # Set device ID (default 0)
             "--execution-thread-count", "32",  # Maximum thread count
-            "--execution-queue-count", "2"
+            "--execution-queue-count", "2",
+           
         ]
 
         # Log the first command
