@@ -29,7 +29,7 @@ class Services:
             # api_key = os.environ.get("PROXYCURL_API_KEY")
             # logging.info("API_KEY_proxycurl 2:::",api_key)
 
-            headers = {'Authorization': 'Bearer ' + str("BubRrYhN8UWaxALEJGlINA")}
+            headers = {'Authorization': 'Bearer ' + str("rV2AiFgyn3X6b9xpttFWgQ")}
             print("HEADER:::",headers)
             api_endpoint = 'https://nubela.co/proxycurl/api/v2/linkedin'
             params = {

@@ -25,7 +25,7 @@ class S3Manager:
                                       region_name=self.aws_region)
         
         self.check_s3_connection()
-        self.add_lifecycle_rule()
+        # self.add_lifecycle_rule()
         
     def check_s3_connection(self):
         try:

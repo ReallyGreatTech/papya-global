@@ -15,6 +15,9 @@ from api.services import service_module
 from api.s3_service import s3_manager
 import requests
 import time
+import asyncio
+import random
+import string
 
 
 # Enhanced logging setup
@@ -47,6 +50,15 @@ def generate_unique_filename(original_filename: str) -> str:
     ext = os.path.splitext(original_filename)[1]
     return f"{str(uuid.uuid4())[:8]}{ext}"
 
+async def run_command(command):
+    process = await asyncio.create_subprocess_exec(
+        *command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await process.communicate()
+    return process.returncode, stdout.decode(), stderr.decode()
+
 async def process_face_fusion(
     job_id: str,
     source_path: str,
@@ -65,6 +77,12 @@ async def process_face_fusion(
             raise FileNotFoundError(f"Source file not found: {source_path}")
         if not os.path.exists(TARGET_VIDEO):
             raise FileNotFoundError(f"Target video not found: {TARGET_VIDEO}")
+        
+        # Make a copy of the TARGET_VIDEO and rename it to a random name
+
+        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
+        shutil.copy(TARGET_VIDEO, target_video_copy)
 
         # Create output directory if it doesn't exist
         os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -80,7 +98,7 @@ async def process_face_fusion(
             "--processors", "face_swapper",
             "--face-swapper-model", "inswapper_128",
             "--source-paths", source_path,
-            "--target-path", TARGET_VIDEO,
+            "--target-path", target_video_copy,
             "--output-path", first_output_path,
             "--reference-face-position", str(REFERENCE_FACE_POSITION),
             "--reference-frame-number", str(REFERENCE_FRAME_NUMBER),
@@ -93,20 +111,23 @@ async def process_face_fusion(
         logger.info(f"Executing first command: {first_command_str}")
 
         # # Run the first command
-        first_process = subprocess.Popen(
-            first_command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True  # Return strings instead of bytes
-        )
+        # first_process = subprocess.Popen(
+        #     first_command,
+        #     stdout=subprocess.PIPE,
+        #     stderr=subprocess.PIPE,
+        #     text=True  # Return strings instead of bytes
+        # )
 
-        stdout, stderr = first_process.communicate()
-        logger.info(f"First process stdout: {stdout}")
+        returncode, stdout, stderr = await run_command(first_command)
+
+
+        # stdout, stderr = first_process.communicate()
+        logger.info(f"First process stdout: {returncode}{stdout}")
         if stderr:
             logger.error(f"First process stderr: {stderr}")
 
-        if first_process.returncode != 0 or not os.path.exists(first_output_path):
-            error_msg = f"First process failed with return code {first_process.returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
+        if returncode != 0 or not os.path.exists(first_output_path):
+            error_msg = f"First process failed with return code {returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
             logger.error(f"Job {job_id} failed during first run: {error_msg}")
             job_statuses[job_id] = JobStatus(
                 job_id=job_id,
@@ -147,21 +168,23 @@ async def process_face_fusion(
         logger.info(f"Executing second command: {second_command_str}")
 
         # # Run the second command
-        second_process = subprocess.Popen(
-            second_command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True  # Return strings instead of bytes
-        )
+        # second_process = subprocess.Popen(
+        #     second_command,
+        #     stdout=subprocess.PIPE,
+        #     stderr=subprocess.PIPE,
+        #     text=True  # Return strings instead of bytes
+        # )
 
-        stdout, stderr = second_process.communicate()
+        # stdout, stderr = second_process.communicate()
+        returncode, stdout, stderr = await run_command(second_command)
+
         logger.info(f"Second process stdout: {stdout}")
         if stderr:
             logger.error(f"Second process stderr: {stderr}")
 
         end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        if second_process.returncode == 0 and os.path.exists(second_output_path):
+        if returncode == 0 and os.path.exists(second_output_path):
             logger.info(f"Job {job_id} completed successfully")
             job_statuses[job_id] = JobStatus(
                 job_id=job_id,
@@ -184,7 +207,7 @@ async def process_face_fusion(
             await service_module.send_email(msg="", url=url, email=reciepient, name=fname)
 
         else:
-            error_msg = f"Second process failed with return code {second_process.returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
+            error_msg = f"Second process failed with return code {returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
             logger.error(f"Job {job_id} failed during second run: {error_msg}")
             job_statuses[job_id] = JobStatus(
                 job_id=job_id,
