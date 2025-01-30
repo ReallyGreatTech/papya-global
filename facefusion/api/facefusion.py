@@ -16,8 +16,9 @@ from bson.objectid import ObjectId
 import requests
 import trio
 from subprocess import PIPE
-import os
-import sys
+import random
+import string
+
 # Enhanced logging setup
 logging.basicConfig(
     # level=logging.DEBUG,
@@ -75,7 +76,6 @@ async def trio_subprocess(command: list) -> tuple:
         logger.error(f"Error in trio_subprocess: {str(e)}")
         raise
 
-
 async def process_face_fusion(
     job_id: str,
     source_path: str,
@@ -111,10 +111,13 @@ async def process_face_fusion(
         if not os.path.exists(TARGET_VIDEO):
             raise FileNotFoundError(f"Target video not found: {TARGET_VIDEO}")
 
-        # Awal
-
         # Create output directory if it doesn't exist
         os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+        # Generate a random name for the target video copy
+        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
+        shutil.copy(TARGET_VIDEO, target_video_copy)
 
         # Generate unique output filename for the first run
         first_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_first_run.mp4")
@@ -331,12 +334,7 @@ async def create_face_fusion_job(
         logger.error(f"Error creating fusion job: {e}")
         raise HTTPException(status_code=500, detail=f"Error processing face fusion job: {e}")
 
-# @app.get("/job-status/{job_id}")
-# async def get_job_status(job_id: str):
-#     if job_id in job_statuses:
-#         return job_statuses[job_id]
-#     else:
-#         raise HTTPException(status_code=404, detail="Job not found.")
+
 
 @app.get("/job/{job_id}/status/")
 async def get_job_status(job_id: str):
