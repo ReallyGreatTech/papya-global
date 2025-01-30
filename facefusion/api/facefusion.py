@@ -18,6 +18,8 @@ import trio
 from subprocess import PIPE
 import random
 import string
+from PIL import Image
+import io
 
 # Enhanced logging setup
 logging.basicConfig(
@@ -284,7 +286,7 @@ async def process_face_fusion(
             start_time=start_time,
             end_time=end_time
         )
-        
+
 @app.post("/process-swap/")
 async def create_face_fusion_job(
     background_tasks: BackgroundTasks,
@@ -314,9 +316,21 @@ async def create_face_fusion_job(
             try:
                 source_filename = image.filename
                 source_path = os.path.join(UPLOAD_DIR, generate_unique_filename(source_filename))
-                with open(source_path, 'wb') as file:
-                    contents = await image.read()
-                    file.write(contents)
+
+                # Check the uploaded image format
+                img = Image.open(io.BytesIO(await image.read()))
+                if img.format == 'JPEG' and img.info.get('jfif', False):
+                    # Convert JFIF image to JPEG
+                    source_filename = os.path.splitext(source_filename)[0] + '.jpg'
+                    source_path = os.path.join(UPLOAD_DIR, generate_unique_filename(source_filename))
+                    img = img.convert('RGB')
+                    img.save(source_path, 'JPEG')
+                else:
+                    # Save the image as-is for PNG, JPG, and JPEG formats
+                    with open(source_path, 'wb') as file:
+                        await image.seek(0)
+                        contents = await image.read()
+                        file.write(contents)
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Error saving uploaded image: {e}")
         else:
