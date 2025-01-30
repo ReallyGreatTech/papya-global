@@ -137,10 +137,10 @@ async def process_face_fusion(
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
            	"--execution-device-id", "0",  # Set device ID (default 0)
-			# "--execution-providers", "cuda",
+			"--execution-providers", "cuda",
     		"--execution-thread-count", "32",  # Maximum thread count
     		"--execution-queue-count", "2",
-          
+
         ]
 
         # Log the first command
@@ -195,7 +195,7 @@ async def process_face_fusion(
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
             "--execution-device-id", "0",  # Set device ID (default 0)
-			# "--execution-providers", "cuda",
+			"--execution-providers", "cuda",
             "--execution-thread-count", "32",  # Maximum thread count
             "--execution-queue-count", "2"
         ]
