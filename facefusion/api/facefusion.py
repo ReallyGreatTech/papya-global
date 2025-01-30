@@ -1,4 +1,4 @@
-from fastapi import FastAPI, BackgroundTasks, UploadFile, HTTPException
+from fastapi import FastAPI, BackgroundTasks, UploadFile, HTTPException, Form, File
 from fastapi.responses import JSONResponse, FileResponse
 from .constants import TARGET_VIDEO, OUTPUT_DIR, UPLOAD_DIR, REFERENCE_FACE_POSITION, REFERENCE_FRAME_NUMBER
 import os
@@ -18,6 +18,8 @@ import trio
 from subprocess import PIPE
 import random
 import string
+from PIL import Image
+import io
 
 # Enhanced logging setup
 logging.basicConfig(
@@ -288,26 +290,51 @@ async def process_face_fusion(
 @app.post("/process-swap/")
 async def create_face_fusion_job(
     background_tasks: BackgroundTasks,
-    body: Dict
+    email: str = Form(...),
+    send_flag: bool = Form(...),
+    linkedin_url: Optional[str] = Form(None),
+    image: Optional[UploadFile] = File(None),
 ):
     try:
         admin_email = "awal@reallygreattech.com"
-        email: str = body['email']
-        send_flag: bool = body['send_flag']
-        linkedin_url: str = body['linkedin_url']
 
-        # Import service and call LinkedIn scraper API
-        linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
-        source_filename = linkedin_data['first_name'] + '.jpeg'
+        if linkedin_url:
+            # Import service and call LinkedIn scraper API
+            linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
+            source_filename = linkedin_data['first_name'] + '.jpeg'
 
-        # Save the source file
-        try:
-            source_path = os.path.join(UPLOAD_DIR, generate_unique_filename(source_filename))
-            response = requests.get(linkedin_data['profile_pic_url'])
-            with open(source_path, 'wb') as file:
-                file.write(response.content)
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error downloading image: {e}")
+            # Save the source file from LinkedIn profile pic URL
+            try:
+                source_path = os.path.join(UPLOAD_DIR, generate_unique_filename(source_filename))
+                response = requests.get(linkedin_data['profile_pic_url'])
+                with open(source_path, 'wb') as file:
+                    file.write(response.content)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Error downloading image: {e}")
+        elif image:
+            # Save the uploaded image file
+            try:
+                source_filename = image.filename
+                source_path = os.path.join(UPLOAD_DIR, generate_unique_filename(source_filename))
+
+                # Check the uploaded image format
+                img = Image.open(io.BytesIO(await image.read()))
+                if img.format == 'JPEG' and img.info.get('jfif', False):
+                    # Convert JFIF image to JPEG
+                    source_filename = os.path.splitext(source_filename)[0] + '.jpg'
+                    source_path = os.path.join(UPLOAD_DIR, generate_unique_filename(source_filename))
+                    img = img.convert('RGB')
+                    img.save(source_path, 'JPEG')
+                else:
+                    # Save the image as-is for PNG, JPG, and JPEG formats
+                    with open(source_path, 'wb') as file:
+                        await image.seek(0)
+                        contents = await image.read()
+                        file.write(contents)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Error saving uploaded image: {e}")
+        else:
+            raise HTTPException(status_code=400, detail="Either linkedin_url or image must be provided")
 
         # Process fusion asynchronously
         job_id = str(uuid.uuid4())
@@ -333,7 +360,6 @@ async def create_face_fusion_job(
     except Exception as e:
         logger.error(f"Error creating fusion job: {e}")
         raise HTTPException(status_code=500, detail=f"Error processing face fusion job: {e}")
-
 
 
 @app.get("/job/{job_id}/status/")
