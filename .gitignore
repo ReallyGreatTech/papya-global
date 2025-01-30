@@ -4,18 +4,17 @@
 **/.jobs
 **/.idea
 **/.vscode
+
 *.pyc
 *.pyo
+
 **/upload/*
 **/output/*
 .venv/*
+
 app.log
+
 .env
-
-
-
-
-
 
 
 
