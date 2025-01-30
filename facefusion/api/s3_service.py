@@ -19,11 +19,11 @@ class S3Manager:
         self.aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
         self.aws_region = os.getenv("AWS_REGION")
         self.s3_bucket_name = os.getenv("S3_BUCKET_NAME")
-        
-        self.s3_client = boto3.client('s3', aws_access_key_id=self.aws_access_key_id, 
-                                      aws_secret_access_key=self.aws_secret_access_key, 
+
+        self.s3_client = boto3.client('s3', aws_access_key_id=self.aws_access_key_id,
+                                      aws_secret_access_key=self.aws_secret_access_key,
                                       region_name=self.aws_region)
-        
+
         self.check_s3_connection()
         # self.add_lifecycle_rule()
         
@@ -36,12 +36,12 @@ class S3Manager:
             print("Credentials not available or incorrect.")
         except Exception as e:
             print(f"Error connecting to S3 bucket: {e}")
-            
-    
+
+
     def add_lifecycle_rule(self):
         """Creates a lifecycle rule on an existing bucket for deletion based on prefix."""
         folder_name = "temp_docs"
-        
+
         lifecycle_config = {
             'Rules': [
                 {
@@ -76,28 +76,28 @@ class S3Manager:
         try:
             self.s3_client.upload_file(file_name, self.s3_bucket_name, path)
             print(f"File uploaded successfully to s3://{self.s3_bucket_name}/{path}")
-            # file_url = f"https://{self.s3_bucket_name}.s3.{self.aws_region}.amazonaws.com/{path}"
-            file_url = self.s3_client.generate_presigned_url(
-                'get_object',
-                Params={'Bucket': self.s3_bucket_name, 'Key': path},
-                ExpiresIn=43200  # 12 hours in seconds
-            )
+            file_url = f"https://{self.s3_bucket_name}.s3.{self.aws_region}.amazonaws.com/{path}"
+            # file_url = self.s3_client.generate_presigned_url(
+            #     'get_object',
+            #     Params={'Bucket': self.s3_bucket_name, 'Key': path},
+            #     ExpiresIn=43200  # 12 hours in seconds
+            # )
         except Exception as e:
             print(f"Error: {e}")
-            
+
         finally:
             return file_url
-        
-        
-   
-    
+
+
+
+
     def sanitize_filename(self,filename):
         # Define a regular expression pattern to match special characters
         pattern = r'[^\w\d\s\-_.]'
-        
+
         # Use the re.sub() function to replace special characters with an empty string
         sanitized_filename = re.sub(pattern, '', filename)
-        
+
         return sanitized_filename
 
 

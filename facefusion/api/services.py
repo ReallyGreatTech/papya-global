@@ -7,6 +7,7 @@ import requests
 import traceback
 import asyncio
 from dotenv import find_dotenv, load_dotenv
+import logging
 
 load_dotenv()
 
@@ -26,8 +27,8 @@ class Services:
     def scrape_profile_proxycurl(self, profile):
         try:
 
-            # api_key = os.environ.get("PROXYCURL_API_KEY")
-            # logging.info("API_KEY_proxycurl 2:::",api_key)
+            api_key = os.environ.get("PROXYCURL_API_KEY")
+            logging.info("API_KEY_proxycurl 2:::",api_key)
 
             headers = {'Authorization': 'Bearer ' + str("rV2AiFgyn3X6b9xpttFWgQ")}
             print("HEADER:::",headers)
@@ -39,23 +40,24 @@ class Services:
             response = requests.get(api_endpoint,
                                     params=params,
                                     headers=headers)
-            
+
             if response.status_code != 200:
                 print(response.status_code)
+                print(response.text)
                 raise Exception
-                
-            
+
+
             print("proxycurl response: ", response.status_code)
             return response.json()
-        
+
         except Exception as ex:
             traceback.print_exc()
             raise ex
-        
+
 
     async def send_email(background_tasks: BackgroundTasks, msg, url, email, name):
 
-        
+
         # Configure email settings
         conf = ConnectionConfig(
             MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
@@ -290,6 +292,6 @@ class Services:
         print("EMAIL------SENT:",email)
 
         return {"message": "Email has been sent!"}
-    
-        
+
+
 service_module = Services()

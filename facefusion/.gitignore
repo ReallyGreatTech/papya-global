@@ -4,6 +4,7 @@ __pycache__
 .jobs
 .idea
 .vscode
+**/app.log
 
 *.pyc
 *.pyo
