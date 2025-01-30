@@ -140,7 +140,7 @@ async def process_face_fusion(
 			# "--execution-providers", "cuda",
     		"--execution-thread-count", "32",  # Maximum thread count
     		"--execution-queue-count", "2",
-            "--execution-providers", "cuda"
+          
         ]
 
         # Log the first command
