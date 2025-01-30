@@ -139,7 +139,7 @@ async def process_face_fusion(
            	"--execution-device-id", "0",  # Set device ID (default 0)
 			"--execution-providers", "cuda",
     		"--execution-thread-count", "32",  # Maximum thread count
-    		"--execution-queue-count", "5",
+    		
 
         ]
 
@@ -206,7 +206,7 @@ async def process_face_fusion(
             "--execution-device-id", "0",  # Set device ID (default 0)
 			"--execution-providers", "cuda",
             "--execution-thread-count", "32",  # Maximum thread count
-            "--execution-queue-count", "5"
+           
         ]
 
         # Log the second command
