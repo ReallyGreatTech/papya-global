@@ -162,7 +162,7 @@ async def process_face_fusion(
                 start_time=start_time,
                 end_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             )
-            #save status
+            #save status of the step 1
             jobs_collection.update_one(
                 {"job_id": job_id},
                 {"$set": {
@@ -258,6 +258,16 @@ async def process_face_fusion(
                 command=f"First command: {first_command_str}\nSecond command: {second_command_str}",
                 start_time=start_time,
                 end_time=end_time
+            )
+
+            # Update job status in database for failed second step
+            jobs_collection.update_one(
+                {"job_id": job_id},
+                {"$set": {
+                    "status": "failed",
+                    "error": error_msg,
+                    "end_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }}
             )
 
     except Exception as e:
