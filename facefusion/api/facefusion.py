@@ -32,8 +32,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-
 # MongoDB setup
 MONGO_DETAILS = "mongodb+srv://bargains_pro:MOIookr5SFne3vWK@cluster0.je8x5oh.mongodb.net/"
 client = MongoClient(MONGO_DETAILS)
@@ -45,7 +43,6 @@ app = FastAPI()
 # (Swap to proper database)
 job_statuses = {}
 
-
 class JobStatus(BaseModel):
     job_id: str
     status: str
@@ -54,6 +51,11 @@ class JobStatus(BaseModel):
     command: Optional[str] = None
     start_time: Optional[str] = None
     end_time: Optional[str] = None
+
+class FusionRequest(BaseModel):
+    linkedin_url: str
+    email: str
+    send_flag: bool
 
 def generate_unique_filename(original_filename: str) -> str:
     """Generate a unique filename using UUID."""
@@ -290,51 +292,27 @@ async def process_face_fusion(
 @app.post("/process-swap/")
 async def create_face_fusion_job(
     background_tasks: BackgroundTasks,
-    email: str = Form(...),
-    send_flag: bool = Form(...),
-    linkedin_url: Optional[str] = Form(None),
-    image: Optional[UploadFile] = File(None),
+    request: FusionRequest
 ):
     try:
         admin_email = "awal@reallygreattech.com"
 
-        if linkedin_url:
-            # Import service and call LinkedIn scraper API
-            linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
-            source_filename = linkedin_data['first_name'] + '.jpeg'
+        linkedin_url = request.linkedin_url
+        email = request.email
+        send_flag = request.send_flag
 
-            # Save the source file from LinkedIn profile pic URL
-            try:
-                source_path = os.path.join(UPLOAD_DIR, generate_unique_filename(source_filename))
-                response = requests.get(linkedin_data['profile_pic_url'])
-                with open(source_path, 'wb') as file:
-                    file.write(response.content)
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Error downloading image: {e}")
-        elif image:
-            # Save the uploaded image file
-            try:
-                source_filename = image.filename
-                source_path = os.path.join(UPLOAD_DIR, generate_unique_filename(source_filename))
+        # Import service and call LinkedIn scraper API
+        linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
+        source_filename = linkedin_data['first_name'] + '.jpeg'
 
-                # Check the uploaded image format
-                img = Image.open(io.BytesIO(await image.read()))
-                if img.format == 'JPEG' and img.info.get('jfif', False):
-                    # Convert JFIF image to JPEG
-                    source_filename = os.path.splitext(source_filename)[0] + '.jpg'
-                    source_path = os.path.join(UPLOAD_DIR, generate_unique_filename(source_filename))
-                    img = img.convert('RGB')
-                    img.save(source_path, 'JPEG')
-                else:
-                    # Save the image as-is for PNG, JPG, and JPEG formats
-                    with open(source_path, 'wb') as file:
-                        await image.seek(0)
-                        contents = await image.read()
-                        file.write(contents)
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Error saving uploaded image: {e}")
-        else:
-            raise HTTPException(status_code=400, detail="Either linkedin_url or image must be provided")
+        # Save the source file from LinkedIn profile pic URL
+        try:
+            source_path = os.path.join(UPLOAD_DIR, generate_unique_filename(source_filename))
+            response = requests.get(linkedin_data['profile_pic_url'])
+            with open(source_path, 'wb') as file:
+                file.write(response.content)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error downloading image: {e}")
 
         # Process fusion asynchronously
         job_id = str(uuid.uuid4())
@@ -394,5 +372,4 @@ async def health_check():
     except Exception as e:
         logger.error(f"Error in /health endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
 
