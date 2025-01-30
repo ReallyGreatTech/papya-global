@@ -70,13 +70,18 @@ async def trio_subprocess(command: list) -> tuple:
             capture_stdout=True,
             capture_stderr=True
         )
+        logger.info(f"Trio subprocess completed with return code: {process.returncode}")
+        logger.debug(f"Trio subprocess stdout: {process.stdout}")
+        logger.debug(f"Trio subprocess stderr: {process.stderr}")
         return (
             process.returncode,
             process.stdout.decode() if process.stdout else "",
             process.stderr.decode() if process.stderr else ""
         )
+
     except Exception as e:
         # Log and re-raise the exception
+
         logger.error(f"Error in trio_subprocess: {str(e)}")
         raise
 
@@ -134,7 +139,7 @@ async def process_face_fusion(
             "--processors", "face_swapper",
             "--face-swapper-model", "inswapper_128",
             "--source-paths", source_path,
-            "--target-path", TARGET_VIDEO,
+            "--target-path", target_video_copy,
             "--output-path", first_output_path,
             "--reference-face-position", str(REFERENCE_FACE_POSITION),
             "--reference-frame-number", str(REFERENCE_FRAME_NUMBER),
