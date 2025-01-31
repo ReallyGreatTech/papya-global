@@ -189,8 +189,13 @@ async def process_face_fusion(
         # Generate unique output filename for the second run
         # sfname is the firstname of the client + the image extention .jpg
         #split out the image extention
-        fname = os.path.splitext(sfname)[0]
-        second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_{fname}.mp4")
+        fname="_"
+        if sfname:
+            fname = os.path.splitext(sfname)[0].replace('.', '').replace(' ', '_')
+            second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_{fname}.mp4")
+        else:
+            second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_final.mp4")
+
 
         # Construct command for the second run
         second_command = [
@@ -249,7 +254,7 @@ async def process_face_fusion(
             os.remove(first_output_path)
 
             # Upload the output to S3 and get the URL
-            url = await s3_manager.upload_file(f"output_{job_id}_final.mp4", second_output_path)
+            url = await s3_manager.upload_file(f"output_{job_id}_{fname}.mp4", second_output_path)
 
             # Return the URL in the job status
             job_statuses[job_id].output_path = url
