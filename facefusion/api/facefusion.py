@@ -77,6 +77,7 @@ async def process_face_fusion(
     flag: bool,
     admin_email: str,
     fname: str
+
 ):
     """Background task to process face fusion."""
     start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -104,7 +105,13 @@ async def process_face_fusion(
         logger.debug(f"Validating the presence of target video: {TARGET_VIDEO}")
         if not os.path.exists(TARGET_VIDEO):
             raise FileNotFoundError(f"Target video not found: {TARGET_VIDEO}")
-        
+
+        # Make a copy of the TARGET_VIDEO and rename it to a random name
+
+        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
+        shutil.copy(TARGET_VIDEO, target_video_copy)
+
         # Make a copy of the TARGET_VIDEO and rename it to a random name
 
         random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
@@ -139,7 +146,7 @@ async def process_face_fusion(
            	"--execution-device-id", "0",  # Set device ID (default 0)
 			"--execution-providers", "cuda",
     		"--execution-thread-count", "32",  # Maximum thread count
-    		
+
 
         ]
 
@@ -206,7 +213,7 @@ async def process_face_fusion(
             "--execution-device-id", "0",  # Set device ID (default 0)
 			"--execution-providers", "cuda",
             "--execution-thread-count", "32",  # Maximum thread count
-           
+
         ]
 
         # Log the second command
@@ -246,7 +253,7 @@ async def process_face_fusion(
             os.remove(first_output_path)
 
             # Upload the output to S3 and get the URL
-            url = await s3_manager.upload_file(f"output_{job_id}_final.mp4", second_output_path)
+            url = await s3_manager.upload_file(f"output_{job_id}_{fname}_final.mp4", second_output_path)
 
             # Return the URL in the job status
             job_statuses[job_id].output_path = url
@@ -317,6 +324,9 @@ async def create_face_fusion_job(
         # Import service and call LinkedIn scraper API
         linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
         source_filename = linkedin_data['first_name'] + '.jpeg'
+        fname = linkedin_data['first_name']
+        print(fname)
+
 
         # Save the source file from LinkedIn profile pic URL
         try:
@@ -338,7 +348,9 @@ async def create_face_fusion_job(
             email,  # Positional argument
             send_flag,  # Positional argument
             admin_email,  # Positional argument
-            source_filename  # Positional argument
+            source_filename, # Positional argument
+            fname
+
         )
 
         return JSONResponse({
