@@ -76,7 +76,8 @@ async def process_face_fusion(
     email: str,
     flag: bool,
     admin_email: str,
-    fname: str
+    fname: str,
+    fullname: str
 ):
     """Background task to process face fusion."""
     start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -193,7 +194,7 @@ async def process_face_fusion(
             return
 
         # Generate unique output filename for the second run
-        second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_final.mp4")
+        second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_final_{fullname}_.mp4")
 
         # Construct command for the second run
         second_command = [
@@ -323,6 +324,9 @@ async def create_face_fusion_job(
         # Import service and call LinkedIn scraper API
         linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
         source_filename = linkedin_data['first_name'] + '.jpeg'
+        fullname = linkedin_data['first_name'] + '_' + linkedin_data['last_name']
+        print(fullname)
+
 
         # Save the source file from LinkedIn profile pic URL
         try:
@@ -344,7 +348,9 @@ async def create_face_fusion_job(
             email,  # Positional argument
             send_flag,  # Positional argument
             admin_email,  # Positional argument
-            source_filename  # Positional argument
+            source_filename, # Positional argument
+            fullname
+
         )
 
         return JSONResponse({
