@@ -277,10 +277,10 @@ async def process_face_fusion(
             )
 
             # Send email to admin or user based on flag (keep commented for future use)
-            # if flag:
-            #     send_email(admin_email, f"Job {job_id} completed.", "Your job is done!")
-            # else:
-            #     send_email(email, f"Job {job_id} completed.", "Your job is done!")
+            if flag:
+                await service_module.send_email(admin_email, f"Job {job_id} completed.", "Your job is done!")
+            else:
+                await service_module.send_email(email, f"Job {job_id} completed.", "Your job is done!")
 
         else:
             error_msg = f"Second process failed with return code {returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
