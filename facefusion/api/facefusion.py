@@ -42,6 +42,8 @@ app = FastAPI()
 # (Swap to proper database)
 job_statuses = {}
 
+# Ensure UPLOAD_DIR exists
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 class JobStatus(BaseModel):
     job_id: str
     status: str
@@ -387,11 +389,16 @@ async def get_job_status(job_id: str):
 async def create_face_fusion_job_with_file(
     background_tasks: BackgroundTasks,
     email: str = Form(...),  # Get email from form data
+    fullname: str = Form(...),
     send_flag: bool = Form(False),  # Get send_flag from form data
     file: UploadFile = File(...)  # Get the uploaded image file
 ):
     try:
         admin_email = "awal@reallygreattech.com"
+        # Split the full name into first name and last name
+        name_parts = fullname.split()
+        first_name = name_parts[0]  # First name from fullname
+        last_name = name_parts[1] if len(name_parts) > 1 else ""  # Handle if only one part
 
         # Validate the uploaded file
         if not file.content_type.startswith("image/"):
@@ -407,9 +414,12 @@ async def create_face_fusion_job_with_file(
 
         # Process fusion asynchronously
         job_id = str(uuid.uuid4())
+        fullname_concat = f"{first_name}_{last_name}"
+        fullname = fullname_concat
 
         # Pass arguments as positional arguments to trio.run
         background_tasks.add_task(
+
             process_face_fusion,
             job_id,  # Positional argument
             source_path,  # Positional argument
@@ -417,6 +427,7 @@ async def create_face_fusion_job_with_file(
             send_flag,  # Positional argument
             admin_email,  # Positional argument
             source_filename,  # Positional argument
+            fullname
         )
 
         return JSONResponse({
