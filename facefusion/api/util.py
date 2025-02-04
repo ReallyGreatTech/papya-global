@@ -14,12 +14,12 @@ from api.s3_service import s3_manager
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import requests
-import time
 import trio
-import asyncio
+from subprocess import PIPE
 import random
 import string
-
+from PIL import Image
+import io
 
 # Enhanced logging setup
 logging.basicConfig(
@@ -62,15 +62,6 @@ def generate_unique_filename(original_filename: str) -> str:
     ext = os.path.splitext(original_filename)[1]
     return f"{str(uuid.uuid4())[:8]}{ext}"
 
-# async def run_command(command):
-#     process = await asyncio.create_subprocess_exec(
-#         *command,
-#         stdout=asyncio.subprocess.PIPE,
-#         stderr=asyncio.subprocess.PIPE
-#     )
-#     stdout, stderr = await process.communicate()
-#     return process.returncode, stdout.decode(), stderr.decode()
-
 async def trio_subprocess(command: list) -> tuple:
     """Run a subprocess using trio and return stdout, stderr, and return code."""
     try:
@@ -100,7 +91,8 @@ async def process_face_fusion(
     email: str,
     flag: bool,
     admin_email: str,
-    sfname: str
+    fname: str,
+    fullname: str
 ):
     """Background task to process face fusion."""
     start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -129,18 +121,6 @@ async def process_face_fusion(
         if not os.path.exists(TARGET_VIDEO):
             raise FileNotFoundError(f"Target video not found: {TARGET_VIDEO}")
 
-        # Make a copy of the TARGET_VIDEO and rename it to a random name
-
-        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-        target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
-        shutil.copy(TARGET_VIDEO, target_video_copy)
-
-        # Make a copy of the TARGET_VIDEO and rename it to a random name
-
-        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-        target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
-        shutil.copy(TARGET_VIDEO, target_video_copy)
-
         # Create output directory if it doesn't exist
         os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -167,9 +147,9 @@ async def process_face_fusion(
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
            	"--execution-device-id", "0",  # Set device ID (default 0)
-			"--execution-providers", "cuda",
+			# "--execution-providers", "cuda",
     		"--execution-thread-count", "32",  # Maximum thread count
-
+    		"--execution-queue-count", "2",
 
         ]
 
@@ -177,20 +157,10 @@ async def process_face_fusion(
         first_command_str = " ".join(first_command)
         logger.info(f"Executing first command: {first_command_str}")
 
-        # # Run the first command
-        # first_process = subprocess.Popen(
-        #     first_command,
-        #     stdout=subprocess.PIPE,
-        #     stderr=subprocess.PIPE,
-        #     text=True  # Return strings instead of bytes
-        # )
-
-        # returncode, stdout, stderr = await run_command(first_command)
+        # Run the first command using trio
         returncode, stdout, stderr = await trio_subprocess(first_command)
 
-
-        # stdout, stderr = first_process.communicate()
-        logger.info(f"First process stdout: {returncode}{stdout}")
+        logger.info(f"First process stdout: {stdout}")
         if stderr:
             logger.error(f"First process stderr: {stderr}")
 
@@ -218,15 +188,7 @@ async def process_face_fusion(
             return
 
         # Generate unique output filename for the second run
-        # sfname is the firstname of the client + the image extention .jpg
-        #split out the image extention
-        fname="_"
-        if sfname:
-            fname = os.path.splitext(sfname)[0].replace('.', '').replace(' ', '_')
-            second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_{fname}.mp4")
-        else:
-            second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_final.mp4")
-
+        second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_final.mp4")
 
         # Construct command for the second run
         second_command = [
@@ -243,25 +205,16 @@ async def process_face_fusion(
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
             "--execution-device-id", "0",  # Set device ID (default 0)
-			"--execution-providers", "cuda",
+			# "--execution-providers", "cuda",
             "--execution-thread-count", "32",  # Maximum thread count
-
+            "--execution-queue-count", "2"
         ]
 
         # Log the second command
         second_command_str = " ".join(second_command)
         logger.info(f"Executing second command: {second_command_str}")
 
-        # # Run the second command
-        # second_process = subprocess.Popen(
-        #     second_command,
-        #     stdout=subprocess.PIPE,
-        #     stderr=subprocess.PIPE,
-        #     text=True  # Return strings instead of bytes
-        # )
-
-        # stdout, stderr = second_process.communicate()
-        # returncode, stdout, stderr = await run_command(second_command)
+        # Run the second command using trio
         returncode, stdout, stderr = await trio_subprocess(second_command)
 
         logger.info(f"Second process stdout: {stdout}")
@@ -286,7 +239,7 @@ async def process_face_fusion(
             os.remove(first_output_path)
 
             # Upload the output to S3 and get the URL
-            url = await s3_manager.upload_file(f"output_{job_id}_{fname}.mp4", second_output_path)
+            url = await s3_manager.upload_file(f"output_{job_id}_final_{fullname}.mp4", second_output_path)
 
             # Return the URL in the job status
             job_statuses[job_id].output_path = url
@@ -303,10 +256,10 @@ async def process_face_fusion(
             )
 
             # Send email to admin or user based on flag (keep commented for future use)
-            if flag:
-                await service_module.send_email(admin_email, f"Job {job_id} completed.", "Your job is done!")
-            else:
-                await service_module.send_email(email, f"Job {job_id} completed.", "Your job is done!")
+            # if flag:
+            #     send_email(admin_email, f"Job {job_id} completed.", "Your job is done!")
+            # else:
+            #     send_email(email, f"Job {job_id} completed.", "Your job is done!")
 
         else:
             error_msg = f"Second process failed with return code {returncode}\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
@@ -357,7 +310,9 @@ async def create_face_fusion_job(
         # Import service and call LinkedIn scraper API
         linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
         source_filename = linkedin_data['first_name'] + '.jpeg'
-        fname = linkedin_data['first_name']
+        fullname = linkedin_data['first_name'] + '_' + linkedin_data['last_name']
+        print(fullname)
+
 
         # Save the source file from LinkedIn profile pic URL
         try:
@@ -380,7 +335,8 @@ async def create_face_fusion_job(
             email,  # Positional argument
             send_flag,  # Positional argument
             admin_email,  # Positional argument
-            source_filename,  # Positional argument
+            source_filename, # Positional argument
+            fullname
         )
 
         return JSONResponse({
