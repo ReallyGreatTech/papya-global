@@ -383,7 +383,51 @@ async def get_job_status(job_id: str):
         logger.error(f"Error in /job/{job_id}/status endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.post("/process-swap-file/")
+async def create_face_fusion_job_with_file(
+    background_tasks: BackgroundTasks,
+    email: str = Form(...),  # Get email from form data
+    send_flag: bool = Form(False),  # Get send_flag from form data
+    file: UploadFile = File(...)  # Get the uploaded image file
+):
+    try:
+        admin_email = "awal@reallygreattech.com"
 
+        # Validate the uploaded file
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="Uploaded file must be an image.")
+
+        # Generate a unique filename for the uploaded file
+        source_filename = generate_unique_filename(file.filename)
+        source_path = os.path.join(UPLOAD_DIR, source_filename)
+
+        # Save the uploaded file to the upload directory
+        with open(source_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # Process fusion asynchronously
+        job_id = str(uuid.uuid4())
+
+        # Pass arguments as positional arguments to trio.run
+        background_tasks.add_task(
+            process_face_fusion,
+            job_id,  # Positional argument
+            source_path,  # Positional argument
+            email,  # Positional argument
+            send_flag,  # Positional argument
+            admin_email,  # Positional argument
+            source_filename,  # Positional argument
+        )
+
+        return JSONResponse({
+            "job_id": job_id,
+            "message": "Face fusion job started successfully.",
+            "status": "processing"
+        })
+
+    except Exception as e:
+        logger.error(f"Error creating fusion job: {e}")
+        raise HTTPException(status_code=500, detail=f"Error processing face fusion job: {e}")
 
 @app.get("/health")
 async def health_check():
