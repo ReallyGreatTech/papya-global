@@ -61,14 +61,14 @@ def generate_unique_filename(original_filename: str) -> str:
     ext = os.path.splitext(original_filename)[1]
     return f"{str(uuid.uuid4())[:8]}{ext}"
 
-async def run_command(command):
-    process = await asyncio.create_subprocess_exec(
-        *command,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
-    )
-    stdout, stderr = await process.communicate()
-    return process.returncode, stdout.decode(), stderr.decode()
+# async def run_command(command):
+#     process = await asyncio.create_subprocess_exec(
+#         *command,
+#         stdout=asyncio.subprocess.PIPE,
+#         stderr=asyncio.subprocess.PIPE
+#     )
+#     stdout, stderr = await process.communicate()
+#     return process.returncode, stdout.decode(), stderr.decode()
 
 async def process_face_fusion(
     job_id: str,
