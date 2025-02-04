@@ -14,11 +14,12 @@ from api.s3_service import s3_manager
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import requests
-import time
-import asyncio
+import trio
+from subprocess import PIPE
 import random
 import string
-
+from PIL import Image
+import io
 
 # Enhanced logging setup
 logging.basicConfig(
@@ -31,6 +32,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Ensure UPLOAD_DIR exists
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 # MongoDB setup
 MONGO_DETAILS = "mongodb+srv://bargains_pro:MOIookr5SFne3vWK@cluster0.je8x5oh.mongodb.net/"
 client = MongoClient(MONGO_DETAILS)
@@ -42,8 +45,6 @@ app = FastAPI()
 # (Swap to proper database)
 job_statuses = {}
 
-# Ensure UPLOAD_DIR exists
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 class JobStatus(BaseModel):
     job_id: str
     status: str
@@ -63,14 +64,28 @@ def generate_unique_filename(original_filename: str) -> str:
     ext = os.path.splitext(original_filename)[1]
     return f"{str(uuid.uuid4())[:8]}{ext}"
 
-async def run_command(command):
-    process = await asyncio.create_subprocess_exec(
-        *command,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
-    )
-    stdout, stderr = await process.communicate()
-    return process.returncode, stdout.decode(), stderr.decode()
+async def trio_subprocess(command: list) -> tuple:
+    """Run a subprocess using trio and return stdout, stderr, and return code."""
+    try:
+        process = await trio._subprocess.run_process(
+            command,
+            capture_stdout=True,
+            capture_stderr=True
+        )
+        logger.info(f"Trio subprocess completed with return code: {process.returncode}")
+        logger.debug(f"Trio subprocess stdout: {process.stdout}")
+        logger.debug(f"Trio subprocess stderr: {process.stderr}")
+        return (
+            process.returncode,
+            process.stdout.decode() if process.stdout else "",
+            process.stderr.decode() if process.stderr else ""
+        )
+
+    except Exception as e:
+        # Log and re-raise the exception
+
+        logger.error(f"Error in trio_subprocess: {str(e)}")
+        raise
 
 async def process_face_fusion(
     job_id: str,
@@ -78,7 +93,8 @@ async def process_face_fusion(
     email: str,
     flag: bool,
     admin_email: str,
-    sfname: str
+    fname: str,
+    fullname: str
 ):
     """Background task to process face fusion."""
     start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -107,18 +123,6 @@ async def process_face_fusion(
         if not os.path.exists(TARGET_VIDEO):
             raise FileNotFoundError(f"Target video not found: {TARGET_VIDEO}")
 
-        # Make a copy of the TARGET_VIDEO and rename it to a random name
-
-        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-        target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
-        shutil.copy(TARGET_VIDEO, target_video_copy)
-
-        # Make a copy of the TARGET_VIDEO and rename it to a random name
-
-        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-        target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
-        shutil.copy(TARGET_VIDEO, target_video_copy)
-
         # Create output directory if it doesn't exist
         os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -145,9 +149,9 @@ async def process_face_fusion(
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
            	"--execution-device-id", "0",  # Set device ID (default 0)
-			"--execution-providers", "cuda",
+			# "--execution-providers", "cuda",
     		"--execution-thread-count", "32",  # Maximum thread count
-
+    		"--execution-queue-count", "2",
 
         ]
 
@@ -155,19 +159,10 @@ async def process_face_fusion(
         first_command_str = " ".join(first_command)
         logger.info(f"Executing first command: {first_command_str}")
 
-        # # Run the first command
-        # first_process = subprocess.Popen(
-        #     first_command,
-        #     stdout=subprocess.PIPE,
-        #     stderr=subprocess.PIPE,
-        #     text=True  # Return strings instead of bytes
-        # )
+        # Run the first command using trio
+        returncode, stdout, stderr = await trio_subprocess(first_command)
 
-        returncode, stdout, stderr = await run_command(first_command)
-
-
-        # stdout, stderr = first_process.communicate()
-        logger.info(f"First process stdout: {returncode}{stdout}")
+        logger.info(f"First process stdout: {stdout}")
         if stderr:
             logger.error(f"First process stderr: {stderr}")
 
@@ -195,15 +190,7 @@ async def process_face_fusion(
             return
 
         # Generate unique output filename for the second run
-        # sfname is the firstname of the client + the image extention .jpg
-        #split out the image extention
-        fname="_"
-        if sfname:
-            fname = os.path.splitext(sfname)[0].replace('.', '').replace(' ', '_')
-            second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_{fname}.mp4")
-        else:
-            second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_final.mp4")
-
+        second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_final.mp4")
 
         # Construct command for the second run
         second_command = [
@@ -220,25 +207,17 @@ async def process_face_fusion(
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
             "--execution-device-id", "0",  # Set device ID (default 0)
-			"--execution-providers", "cuda",
+			# "--execution-providers", "cuda",
             "--execution-thread-count", "32",  # Maximum thread count
-
+            "--execution-queue-count", "2"
         ]
 
         # Log the second command
         second_command_str = " ".join(second_command)
         logger.info(f"Executing second command: {second_command_str}")
 
-        # # Run the second command
-        # second_process = subprocess.Popen(
-        #     second_command,
-        #     stdout=subprocess.PIPE,
-        #     stderr=subprocess.PIPE,
-        #     text=True  # Return strings instead of bytes
-        # )
-
-        # stdout, stderr = second_process.communicate()
-        returncode, stdout, stderr = await run_command(second_command)
+        # Run the second command using trio
+        returncode, stdout, stderr = await trio_subprocess(second_command)
 
         logger.info(f"Second process stdout: {stdout}")
         if stderr:
@@ -262,7 +241,7 @@ async def process_face_fusion(
             os.remove(first_output_path)
 
             # Upload the output to S3 and get the URL
-            url = await s3_manager.upload_file(f"output_{job_id}_{fname}.mp4", second_output_path)
+            url = await s3_manager.upload_file(f"output_{job_id}_final_{fullname}.mp4", second_output_path)
 
             # Return the URL in the job status
             job_statuses[job_id].output_path = url
@@ -333,7 +312,9 @@ async def create_face_fusion_job(
         # Import service and call LinkedIn scraper API
         linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
         source_filename = linkedin_data['first_name'] + '.jpeg'
-        fname = linkedin_data['first_name']
+        fullname = linkedin_data['first_name'] + '_' + linkedin_data['last_name']
+        print(fullname)
+
 
         # Save the source file from LinkedIn profile pic URL
         try:
@@ -349,13 +330,15 @@ async def create_face_fusion_job(
 
         # Pass arguments as positional arguments to trio.run
         background_tasks.add_task(
+            trio.run,
             process_face_fusion,
             job_id,  # Positional argument
             source_path,  # Positional argument
             email,  # Positional argument
             send_flag,  # Positional argument
             admin_email,  # Positional argument
-            source_filename,  # Positional argument
+            source_filename, # Positional argument
+            fullname
         )
 
         return JSONResponse({
@@ -385,6 +368,7 @@ async def get_job_status(job_id: str):
         logger.error(f"Error in /job/{job_id}/status endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+
 @app.post("/process-swap-file/")
 async def create_face_fusion_job_with_file(
     background_tasks: BackgroundTasks,
@@ -395,18 +379,21 @@ async def create_face_fusion_job_with_file(
 ):
     try:
         admin_email = "awal@reallygreattech.com"
-        # Split the full name into first name and last name
+           # Split the full name into first name and last name
         name_parts = fullname.split()
         first_name = name_parts[0]  # First name from fullname
         last_name = name_parts[1] if len(name_parts) > 1 else ""  # Handle if only one part
+
 
         # Validate the uploaded file
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="Uploaded file must be an image.")
 
-        # Generate a unique filename for the uploaded file
+
+	    # Generate a unique filename for the uploaded file
         source_filename = generate_unique_filename(file.filename)
         source_path = os.path.join(UPLOAD_DIR, source_filename)
+
 
         # Save the uploaded file to the upload directory
         with open(source_path, "wb") as buffer:
@@ -419,7 +406,7 @@ async def create_face_fusion_job_with_file(
 
         # Pass arguments as positional arguments to trio.run
         background_tasks.add_task(
-
+            trio.run,
             process_face_fusion,
             job_id,  # Positional argument
             source_path,  # Positional argument
@@ -439,6 +426,7 @@ async def create_face_fusion_job_with_file(
     except Exception as e:
         logger.error(f"Error creating fusion job: {e}")
         raise HTTPException(status_code=500, detail=f"Error processing face fusion job: {e}")
+
 
 @app.get("/health")
 async def health_check():
