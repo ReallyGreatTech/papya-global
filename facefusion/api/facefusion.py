@@ -76,7 +76,7 @@ async def process_face_fusion(
     email: str,
     flag: bool,
     admin_email: str,
-    fname: str
+    sfname: str
 ):
     """Background task to process face fusion."""
     start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -193,7 +193,15 @@ async def process_face_fusion(
             return
 
         # Generate unique output filename for the second run
-        second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_final.mp4")
+        # sfname is the firstname of the client + the image extention .jpg
+        #split out the image extention
+        fname="_"
+        if sfname:
+            fname = os.path.splitext(sfname)[0].replace('.', '').replace(' ', '_')
+            second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_{fname}.mp4")
+        else:
+            second_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_final.mp4")
+
 
         # Construct command for the second run
         second_command = [
@@ -252,7 +260,7 @@ async def process_face_fusion(
             os.remove(first_output_path)
 
             # Upload the output to S3 and get the URL
-            url = await s3_manager.upload_file(f"output_{job_id}_final.mp4", second_output_path)
+            url = await s3_manager.upload_file(f"output_{job_id}_{fname}.mp4", second_output_path)
 
             # Return the URL in the job status
             job_statuses[job_id].output_path = url
@@ -323,6 +331,7 @@ async def create_face_fusion_job(
         # Import service and call LinkedIn scraper API
         linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
         source_filename = linkedin_data['first_name'] + '.jpeg'
+        fname = linkedin_data['first_name']
 
         # Save the source file from LinkedIn profile pic URL
         try:
@@ -344,7 +353,7 @@ async def create_face_fusion_job(
             email,  # Positional argument
             send_flag,  # Positional argument
             admin_email,  # Positional argument
-            source_filename  # Positional argument
+            source_filename,  # Positional argument
         )
 
         return JSONResponse({
