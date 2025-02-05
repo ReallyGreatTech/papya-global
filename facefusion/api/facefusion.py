@@ -209,7 +209,7 @@ async def process_face_fusion(
         second_command = [
             sys.executable,  # Use current Python interpreter
             "facefusion.py",
-            "headless-run",
+             "headless-run",
             "--processors", "face_swapper",
             "--face-swapper-model", "inswapper_128_fp16",
             "--source-paths", source_path,
@@ -385,6 +385,7 @@ async def get_job_status(job_id: str):
         logger.error(f"Error in /job/{job_id}/status endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+
 @app.post("/process-swap-file/")
 async def create_face_fusion_job_with_file(
     background_tasks: BackgroundTasks,
@@ -415,7 +416,7 @@ async def create_face_fusion_job_with_file(
         # Process fusion asynchronously
         job_id = str(uuid.uuid4())
         fullname_concat = f"{first_name}_{last_name}"
-        fullname = fullname_concat
+        sfname = fullname_concat
 
         # Pass arguments as positional arguments to trio.run
         background_tasks.add_task(
@@ -427,7 +428,6 @@ async def create_face_fusion_job_with_file(
             send_flag,  # Positional argument
             admin_email,  # Positional argument
             source_filename,  # Positional argument
-            fullname
         )
 
         return JSONResponse({
