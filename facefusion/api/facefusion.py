@@ -115,17 +115,17 @@ async def process_face_fusion(
 
         # Make a copy of the TARGET_VIDEO and rename it to a random name
 
-        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-        target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
-        shutil.copy(TARGET_VIDEO, target_video_copy)
+        # random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        # target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
+        # shutil.copy(TARGET_VIDEO, target_video_copy)
 
         # Create output directory if it doesn't exist
         os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-        # Generate a random name for the target video copy
-        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-        target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
-        shutil.copy(TARGET_VIDEO, target_video_copy)
+        # # Generate a random name for the target video copy
+        # random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        # target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
+        # shutil.copy(TARGET_VIDEO, target_video_copy)
 
         # Generate unique output filename for the first run
         first_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_first_run.mp4")
@@ -257,12 +257,19 @@ async def process_face_fusion(
                 end_time=end_time
             )
 
-            # Delete the source file and first run output after processing
-            os.remove(source_path)
-            os.remove(first_output_path)
+
 
             # Upload the output to S3 and get the URL
             url = await s3_manager.upload_file(f"output_{job_id}_{fname}.mp4", second_output_path)
+            # Delete the source file and first run output after processing
+            try:
+                os.remove(source_path)
+                os.remove(first_output_path)
+                os.remove(second_output_path)
+                os.remove(target_video_copy)
+            except Exception as e:
+                logger.error(f"Error removing temporary files: {str(e)}")
+
 
             # Return the URL in the job status
             job_statuses[job_id].output_path = url
