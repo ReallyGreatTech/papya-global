@@ -55,7 +55,7 @@ jobs:
           port: ${{ secrets.EC2_SSH_PORT }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "${{ github.workspace }}/.env"
-          target: papyaglobal
+          target: papya
           strip_components: 2
 
       - name: 2 SCP docker compose to server one
@@ -67,8 +67,33 @@ jobs:
           port: ${{ secrets.EC2_SSH_PORT }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "${{ github.workspace }}/docker-compose.yml"
-          target: papyaglobal
+          target: papya
           strip_components: 2
+        
+      - name: 3 SCP prometheus to server one
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          debug: true
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          port: ${{ secrets.EC2_SSH_PORT }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "${{ github.workspace }}/prometheus"
+          target: papya
+          strip_components: 2
+
+      - name: 4 SCP grafana to server one
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          debug: true
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          port: ${{ secrets.EC2_SSH_PORT }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "${{ github.workspace }}/grafana"
+          target: papya
+          strip_components: 2
+
 
       - name: Build and Push Docker Image to ECR
         uses: docker/build-push-action@v2
