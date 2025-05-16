@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 # MongoDB setup
 MONGO_DETAILS = "mongodb+srv://bargains_pro:MOIookr5SFne3vWK@cluster0.je8x5oh.mongodb.net/"
-client = MongoClient(MONGO_DETAILS)
+client = MongoClient(MONGO_DETAILS, tlsInsecure=True)
 db = client.face_fusion_db
 jobs_collection = db.get_collection("jobs")
 
@@ -135,8 +135,9 @@ async def process_face_fusion(
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
            	"--execution-device-id", "0",  # Set device ID (default 0)
-			"--execution-providers", "cuda",
-    		"--execution-thread-count", "32",  # Maximum thread count
+               # change in to cuda in production
+			"--execution-providers", "coreml",
+    		"--execution-thread-count", "8",  # Maximum thread count
 
 
         ]
@@ -210,8 +211,8 @@ async def process_face_fusion(
             "--output-video-quality", "95",
             "--face-detector-score", "0.3",
             "--execution-device-id", "0",  # Set device ID (default 0)
-			"--execution-providers", "cuda",
-            "--execution-thread-count", "32",  # Maximum thread count
+			"--execution-providers", "coreml",
+            "--execution-thread-count", "8",  # Maximum thread count
 
         ]
 
