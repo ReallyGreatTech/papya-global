@@ -107,12 +107,40 @@ async def process_face_fusion(
         if not os.path.exists(TARGET_VIDEO):
             raise FileNotFoundError(f"Target video not found: {TARGET_VIDEO}")
 
-        # Make a copy of the TARGET_VIDEO and rename it to a random name
+        # Make a copy of the TARGET_VIDEO with validation
+        try:
+            random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+            target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
+            
+            # Verify source exists before copying
+            if not os.path.exists(TARGET_VIDEO):
+                raise FileNotFoundError(f"Source target video not found: {TARGET_VIDEO}")
+            
+            shutil.copy(TARGET_VIDEO, target_video_copy)
+            
+            # Verify copy succeeded
+            if not os.path.exists(target_video_copy):
+                raise RuntimeError(f"Failed to create target video copy at {target_video_copy}")
+            
+            logger.info(f"Created target video copy at {target_video_copy}")
 
-        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-        target_video_copy = os.path.join(UPLOAD_DIR, f"{random_name}.mp4")
-        shutil.copy(TARGET_VIDEO, target_video_copy)
+            # Add after target video copy validation
+            if not target_video_copy.lower().endswith(('.mp4', '.mov', '.avi')):
+                raise ValueError(f"Invalid target video format: {target_video_copy}")
 
+        except Exception as copy_error:
+            error_msg = f"Target video preparation failed: {str(copy_error)}"
+            logger.error(error_msg)
+            # Update job status
+            jobs_collection.update_one(
+                {"job_id": job_id},
+                {"$set": {
+                    "status": "failed",
+                    "error": error_msg,
+                    "end_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }}
+            )
+            return
 
         # Create output directory if it doesn't exist
         os.makedirs(OUTPUT_DIR, exist_ok=True)
