@@ -16,6 +16,7 @@ app.log
 
 .env
 
+monitoring-compose.yaml
 
-
+setup.sh
 

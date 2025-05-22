@@ -4,6 +4,12 @@ sudo apt update
 sudo apt upgrade -y
 sudo apt autoremove -y
 
+
+# install aws cli
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
 # install Docker and configure user
 sudo curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
 sudo usermod -aG docker ubuntu
