@@ -15,7 +15,7 @@
 app.log
 
 .env
-
+venv/
 
 
 
