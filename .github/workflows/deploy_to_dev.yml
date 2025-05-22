@@ -4,7 +4,7 @@ on:
   push:
     branches: 
       - master
-      - feat/service-endpoint
+      - Quicktests
 
 env:
   BUILD_ENV_FILE_SCRIPT: "${{ github.workspace }}/build-env.py" 
