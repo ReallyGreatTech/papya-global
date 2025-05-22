@@ -18,7 +18,7 @@ import time
 import asyncio
 import random
 import string
-
+import certifi
 
 # Enhanced logging setup
 logging.basicConfig(
@@ -33,7 +33,10 @@ logger = logging.getLogger(__name__)
 
 # MongoDB setup
 MONGO_DETAILS = "mongodb+srv://bargains_pro:MOIookr5SFne3vWK@cluster0.je8x5oh.mongodb.net/"
-client = MongoClient(MONGO_DETAILS)
+client = MongoClient(MONGO_DETAILS,
+                         tls=True,
+    tlsAllowInvalidCertificates=False,
+    tlsCAFile=certifi.where())
 db = client.face_fusion_db
 jobs_collection = db.get_collection("jobs")
 
@@ -147,8 +150,9 @@ async def process_face_fusion(
 
         # Generate unique output filename for the first run
         first_output_path = os.path.join(OUTPUT_DIR, f"output_{job_id}_first_run.mp4")
-
-        # Construct command for the first run
+        
+        print(f"Target video copy path: {target_video_copy}")
+        print(f"Source path: {source_path}")
         first_command = [
             sys.executable,  # Use current Python interpreter
             "facefusion.py",
@@ -165,6 +169,8 @@ async def process_face_fusion(
            	"--execution-device-id", "0",  # Set device ID (default 0)
 			"--execution-providers", "cuda",
     		"--execution-thread-count", "32",  # Maximum thread count
+            # "--execution-providers", "coreml",
+    		# "--execution-thread-count", "8", 
 
 
         ]
@@ -240,6 +246,8 @@ async def process_face_fusion(
             "--execution-device-id", "0",  # Set device ID (default 0)
 			"--execution-providers", "cuda",
             "--execution-thread-count", "32",  # Maximum thread count
+            # "--execution-providers", "coreml",
+    		# "--execution-thread-count", "8", 
             
 
         ]
@@ -358,6 +366,7 @@ async def create_face_fusion_job(
 
         # Import service and call LinkedIn scraper API
         linkedin_data = service_module.scrape_profile_proxycurl(linkedin_url)
+        print(f"Linkedin data: {linkedin_data}")
         source_filename = linkedin_data['first_name'] + '.jpeg'
         fname = linkedin_data['first_name']
 
