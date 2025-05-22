@@ -11,7 +11,7 @@
 **/upload/*
 **/output/*
 .venv/*
-
+/venv/
 app.log
 
 .env
