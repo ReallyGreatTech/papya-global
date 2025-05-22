@@ -1,6 +1,6 @@
 FROM nvidia/cuda:12.8.0-cudnn-runtime-ubuntu24.04
 
-ARG RUNTIME_BRANCH=feat/service-endpoint
+ARG RUNTIME_BRANCH=Quicktests
 # Environment variables
 ENV GRADIO_SERVER_NAME=0.0.0.0 \
     PIP_BREAK_SYSTEM_PACKAGES=1 \
